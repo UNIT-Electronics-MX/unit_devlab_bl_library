@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pulsar C6 - Control</title>
+  <meta name="description" content="Control del Pulsar C6 Pet Robot via Bluetooth Web">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#7c3aed">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="bluetooth-icon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=9">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- <style>
+   
+  </style> -->
+</head>
+
+<body>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div>
+      <div class="topbar-title">Pulsar C6</div>
+      <div class="topbar-sub">Pet Robot &mdash; BLE Control</div>
+    </div>
+    <div class="topbar-right">
+      <div class="conn-chip">
+        <span class="dot dot-off" id="status-dot"></span>
+        <span id="conn-label">Offline</span>
+      </div>
+      <button id="hamburger-btn" class="hamburger-btn" type="button" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <div id="hamburger-menu" class="hamburger-menu hidden">
+    <p id="menu-device-name" class="menu-info">Sin dispositivo conectado</p>
+    <button id="menu-disconnect-btn" class="menu-btn hidden" type="button">Desconectar</button>
+  </div>
+
+  <main>
+
+    <!-- Connect / Disconnect -->
+    <div id="connect-section" class="section">
+      <div class="section-label">Conexion Bluetooth</div>
+      <div id="device-name-row" class="text-xs text-slate-500 mb-3 hidden">Dispositivo: <span id="device-name"></span></div>
+      <button id="connect-btn" class="btn-connect">Conectar</button>
+      <button id="disconnect-btn" class="btn-disconnect hidden">Desconectar</button>
+    </div>
+
+    <!-- State -->
+    <div class="section">
+      <div class="section-label">Estado Actual</div>
+      <div class="state-row">
+        <div class="state-pill">
+          <div class="state-pill-label">Emocion</div>
+          <div class="state-pill-value" id="current-emotion">---</div>
+        </div>
+        <div class="state-pill">
+          <div class="state-pill-label">Accion</div>
+          <div class="state-pill-value" id="current-action">---</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn tab-active" onclick="switchTab('emotions')">😊 Emociones</button>
+      <button class="tab-btn" onclick="switchTab('messages')">💬 Mensajes</button>
+      <button class="tab-btn" onclick="switchTab('actions')">🎬 Acciones</button>
+    </div>
+
+    <!-- Tab Content: Emotions -->
+    <div id="tab-emotions" class="tab-content tab-content-active">
+      <div class="section">
+        <div class="cmd-grid cmd-grid-5">
+          <button class="cmd-btn e-happy"    onclick="sendCommand('happy')"     disabled><span class="icon">😊</span>Happy</button>
+          <button class="cmd-btn e-sleepy"   onclick="sendCommand('sleepy')"    disabled><span class="icon">😴</span>Sleepy</button>
+          <button class="cmd-btn e-surprised"onclick="sendCommand('surprised')" disabled><span class="icon">😲</span>Wow</button>
+          <button class="cmd-btn e-wink"     onclick="sendCommand('wink')"      disabled><span class="icon">😉</span>Wink</button>
+          <button class="cmd-btn e-vomit"    onclick="sendCommand('vomit')"     disabled><span class="icon">🤮</span>Vomit</button>
+          <button class="cmd-btn e-angry"    onclick="sendCommand('angry')"     disabled><span class="icon">😠</span>Angry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Messages -->
+    <div id="tab-messages" class="tab-content">
+      <div class="section">
+        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
+          Enviar Mensaje
+          <button class="log-clear" onclick="clearMessageHistory()">Limpiar</button>
+        </div>
+        <div class="message-input-row">
+          <input 
+            type="text" 
+            id="message-input" 
+            class="message-input" 
+            placeholder="Escribe un mensaje para mostrar en la OLED..." 
+            maxlength="100"
+            disabled
+          />
+          <button id="send-message-btn" class="btn-send-message" onclick="sendMessage()" disabled>Enviar</button>
+        </div>
+        
+        <!-- Quick Messages -->
+        <div class="quick-messages">
+          <div class="quick-msg-label">Mensajes rápidos:</div>
+          <div class="quick-msg-grid">
+            <button class="quick-msg-btn" onclick="sendQuickMessage('hello')" disabled>👋 Hola</button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('my-name')" disabled>🏷️ Mi nombre</button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('ready')" disabled>✅ Listo?</button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('good')" disabled>⭐ Bien!</button>
+            <button class="quick-msg-btn quick-msg-gladiator" onclick="sendQuickMessage('kubi-gladiator')" disabled>🗡️ Gladiador</button>
+          </div>
+        </div>
+        
+        <div id="message-history" class="message-history">
+          <div class="message-info">Los mensajes aparecerán en la OLED del robot</div>
+        </div>
+        
+        <!-- Message playing indicator -->
+        <div id="message-playing" class="message-playing hidden">
+          <div class="playing-icon">🔊</div>
+          <div class="playing-text">
+            <div class="playing-label">Reproduciendo en OLED...</div>
+            <div id="playing-message" class="playing-message-text"></div>
+          </div>
+          <div id="playing-timer" class="playing-timer">8s</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Actions -->
+    <div id="tab-actions" class="tab-content">
+      <!-- Robot Actions -->
+      <div class="section">
+        <div class="section-label">Acciones del Robot</div>
+        <div class="cmd-grid cmd-grid-3">
+          <button class="cmd-btn a-standup" onclick="sendCommand('standup')" disabled><span class="icon">📍</span>Stand</button>
+          <button class="cmd-btn a-sit"     onclick="sendCommand('sit')"     disabled><span class="icon">🪑</span>Sit</button>
+          <button class="cmd-btn a-sleep"   onclick="sendCommand('sleep')"   disabled><span class="icon">🛏️</span>Sleep</button>
+          <button class="cmd-btn a-wave"    onclick="sendCommand('wave')"    disabled><span class="icon">👋</span>Wave</button>
+          <button class="cmd-btn a-walk"    onclick="sendCommand('walk')"    disabled><span class="icon">🚶</span>Walk</button>
+          <button class="cmd-btn a-stop"    onclick="sendCommand('stop')"    disabled><span class="icon">⏹</span>Stop</button>
+        </div>
+      </div>
+
+      <!-- Weather Widget -->
+      <div class="section">
+        <div class="section-label">🌤️ Clima Actual (Gratis, sin API key)</div>
+        <div id="weather-widget" class="weather-widget">
+          <div id="weather-loading" class="weather-loading">Presiona el botón para obtener el clima de tu ubicación</div>
+          <div id="weather-data" class="weather-data hidden">
+            <div class="weather-row">
+              <div class="weather-icon-large" id="weather-icon">☀️</div>
+              <div class="weather-main">
+                <div class="weather-temp" id="weather-temp">--°C</div>
+                <div class="weather-desc" id="weather-desc">--</div>
+              </div>
+            </div>
+            <div class="weather-details">
+              <div class="weather-detail">
+                <span class="detail-label">💧 Humedad:</span>
+                <span id="weather-humidity">--%</span>
+              </div>
+              <div class="weather-detail">
+                <span class="detail-label">📍 Ubicación:</span>
+                <span id="weather-location">--</span>
+              </div>
+            </div>
+          </div>
+          <div class="weather-buttons">
+            <button id="fetch-weather-btn" class="btn-weather" onclick="fetchWeather()">🔄 Obtener Clima</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pomodoro Timer -->
+      <div class="section">
+        <div class="section-label">🍅 Timer Pomodoro</div>
+        <div class="pomodoro-widget">
+          <div class="pomodoro-display">
+            <div class="pomodoro-mode" id="pomodoro-mode">TRABAJO</div>
+            <div class="pomodoro-timer" id="pomodoro-timer">25:00</div>
+            <div class="pomodoro-status" id="pomodoro-status">Listo para comenzar</div>
+          </div>
+          <div class="pomodoro-controls">
+            <button id="pomodoro-start-btn" class="btn-pomodoro" onclick="startPomodoro()" disabled>▶️ Iniciar</button>
+            <button id="pomodoro-pause-btn" class="btn-pomodoro" onclick="pausePomodoro()" disabled>⏸️ Pausar</button>
+            <button id="pomodoro-reset-btn" class="btn-pomodoro" onclick="resetPomodoro()" disabled>🔄 Reset</button>
+          </div>
+          <div class="pomodoro-config">
+            <div class="config-row">
+              <label>⏱️ Trabajo (min):</label>
+              <input type="number" id="pomodoro-work" value="25" min="1" max="60" />
+            </div>
+            <div class="config-row">
+              <label>☕ Descanso (min):</label>
+              <input type="number" id="pomodoro-break" value="5" min="1" max="30" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date/Time Widget -->
+      <div class="section">
+        <div class="section-label">📅 Fecha y Hora</div>
+        <div class="datetime-widget">
+          <div class="datetime-display">
+            <div class="datetime-time" id="current-time">--:--:--</div>
+            <div class="datetime-date" id="current-date">-- / -- / ----</div>
+          </div>
+          <button id="send-datetime-btn" class="btn-datetime" onclick="sendDateTimeToRobot()" disabled>📤 Sincronizar RTC</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="section">
+      <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
+        Log
+        <button class="log-clear" onclick="clearLog()">Limpiar</button>
+      </div>
+      <div id="log-box" class="log-box">
+        <div class="log-line info">Esperando conexion BLE...</div>
+      </div>
+    </div>
+
+    <!-- UUIDs -->
+    <div class="section">
+      <div class="section-label">Informacion BLE</div>
+      <div class="uuid-row">
+        <div class="uuid-label">Service UUID</div>
+        <div class="uuid-val">4fafc201-1fb5-459e-8fcc-c5c9c331914b</div>
+      </div>
+      <div class="uuid-row">
+        <div class="uuid-label">Characteristic UUID</div>
+        <div class="uuid-val">beb5483e-36e1-4688-b7f5-ea07361b26a8</div>
+      </div>
+    </div>
+
+  </main>
+
+  <button id="install-pwa-btn" class="install-cta hidden" type="button">Instalar app</button>
+
+  <script src="script-pulsar-c6-ble.js"></script>
+  <script>
+    const connectBtn    = document.getElementById('connect-btn');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    const statusDot     = document.getElementById('status-dot');
+    const connLabel     = document.getElementById('conn-label');
+    const deviceNameEl  = document.getElementById('device-name');
+    const deviceNameRow = document.getElementById('device-name-row');
+    const logBox        = document.getElementById('log-box');
+    const currentEmotion = document.getElementById('current-emotion');
+    const currentAction  = document.getElementById('current-action');
+    const allCmdBtns     = document.querySelectorAll('.cmd-btn');
+    const installPwaBtn  = document.getElementById('install-pwa-btn');
+    const connectSection = document.getElementById('connect-section');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const hamburgerMenu = document.getElementById('hamburger-menu');
+    const menuDisconnectBtn = document.getElementById('menu-disconnect-btn');
+    const menuDeviceName = document.getElementById('menu-device-name');
+    const messageInput = document.getElementById('message-input');
+    const sendMessageBtn = document.getElementById('send-message-btn');
+    const messageHistory = document.getElementById('message-history');
+    const quickMsgBtns = document.querySelectorAll('.quick-msg-btn');
+    const messagePlaying = document.getElementById('message-playing');
+    const playingMessage = document.getElementById('playing-message');
+    const playingTimer = document.getElementById('playing-timer');
+
+    let robot = null;
+    let lastEmotionBtn = null;
+    let lastActionBtn  = null;
+    let deferredInstallPrompt = null;
+    let installMode = 'none';
+    const SW_VERSION = 'v9';
+    let commandCooldown = false;
+    const COOLDOWN_MS = 300; // 300ms cooldown between commands
+    let currentDeviceName = 'Kubi';  // Store device name
+    let currentMessageTimeout = null;
+    let messageTimerInterval = null;
+    let pomodoroRunning = false;
+    
+    // Predefined messages (use {NAME} placeholder)
+    const PREDEFINED_MESSAGES = {
+      'hello': 'Hola {NAME}!',
+      'ready': 'Estas listo {NAME}?',
+      'good': 'Buen trabajo {NAME}!',
+      'my-name': 'Mi nombre es {NAME}',
+      'kubi-gladiator': 'Kubi alcanzara su uptime en este release!'
+    };
+
+    // ---- LOG ----
+    function addLog(msg, type = 'info') {
+      const el = document.createElement('div');
+      el.className = `log-line ${type}`;
+      const t = new Date().toLocaleTimeString('es-ES', { hour12: false });
+      el.textContent = `[${t}] ${msg}`;
+      logBox.appendChild(el);
+      logBox.scrollTop = logBox.scrollHeight;
+      const lines = logBox.querySelectorAll('.log-line');
+      if (lines.length > 60) lines[0].remove();
+    }
+
+    function clearLog() {
+      logBox.innerHTML = '<div class="log-line info">Log limpiado</div>';
+    }
+
+    // ---- TAB NAVIGATION ----
+    function switchTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('tab-content-active');
+      });
+      
+      // Remove active state from all tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+      });
+      
+      // Show selected tab content
+      const selectedTab = document.getElementById(`tab-${tabName}`);
+      if (selectedTab) {
+        selectedTab.classList.add('tab-content-active');
+      }
+      
+      // Activate clicked tab button
+      event.target.classList.add('tab-active');
+      
+      addLog(`Pestaña cambiada: ${tabName}`, 'info');
+    }
+
+    // ---- UI STATE ----
+    function setConnected(connected, deviceName) {
+      const mobile = window.matchMedia('(max-width: 768px)').matches;
+
+      if (connected) {
+        statusDot.className = 'dot dot-on';
+        connLabel.textContent = 'Online';
+        connectBtn.classList.add('hidden');
+        disconnectBtn.classList.remove('hidden');
+        if (deviceName) {
+          deviceNameEl.textContent = deviceName;
+          deviceNameRow.classList.remove('hidden');
+        }
+        allCmdBtns.forEach(b => b.disabled = false);
+        messageInput.disabled = false;
+        sendMessageBtn.disabled = false;
+        quickMsgBtns.forEach(b => b.disabled = false);
+        // Enable new action buttons
+        document.getElementById('send-datetime-btn').disabled = false;
+        setPomodoroControls(false);
+        menuDisconnectBtn.classList.remove('hidden');
+        menuDeviceName.textContent = deviceName ? `Dispositivo: ${deviceName}` : 'Dispositivo conectado';
+        if (mobile) connectSection.classList.add('compact-hide');
+      } else {
+        statusDot.className = 'dot dot-off';
+        connLabel.textContent = 'Offline';
+        connectBtn.classList.remove('hidden');
+        disconnectBtn.classList.add('hidden');
+        deviceNameRow.classList.add('hidden');
+        allCmdBtns.forEach(b => { b.disabled = true; b.classList.remove('active-cmd'); });
+        messageInput.disabled = true;
+        sendMessageBtn.disabled = true;
+        quickMsgBtns.forEach(b => b.disabled = true);
+        // Disable new action buttons
+        document.getElementById('send-datetime-btn').disabled = true;
+        setPomodoroControls(false, true);
+        currentEmotion.textContent = '---';
+        currentAction.textContent  = '---';
+        lastEmotionBtn = null;
+        lastActionBtn  = null;
+        menuDisconnectBtn.classList.add('hidden');
+        menuDeviceName.textContent = 'Sin dispositivo conectado';
+        connectSection.classList.remove('compact-hide');
+      }
+    }
+
+    function toggleMenu() {
+      hamburgerMenu.classList.toggle('hidden');
+    }
+
+    function closeMenu() {
+      hamburgerMenu.classList.add('hidden');
+    }
+
+    window.addEventListener('resize', () => {
+      if (!window.matchMedia('(max-width: 768px)').matches) {
+        connectSection.classList.remove('compact-hide');
+        closeMenu();
+      } else if (robot && robot.isConnected) {
+        connectSection.classList.add('compact-hide');
+      }
+    });
+
+    // ---- BLE ----
+    async function connectBLE() {
+      connectBtn.disabled = true;
+      connectBtn.textContent = 'Conectando...';
+      addLog('Buscando dispositivo BLE...', 'info');
+      const ok = await robot.connect();
+      connectBtn.disabled = false;
+      connectBtn.textContent = 'Conectar';
+      if (ok) {
+        const s = robot.getStatus();
+        currentDeviceName = s.deviceName || 'Kubi';  // Save device name
+        setConnected(true, s.deviceName || 'Pulsar C6');
+        addLog('Conexion exitosa', 'ok');
+        // Subscribe to notifications
+        await robot.subscribeToNotifications((data) => {
+          const msg = new TextDecoder().decode(data);
+          if (msg.startsWith('msg:')) {
+            addMessageToHistory('received', msg.substring(4));
+            addLog('Mensaje recibido: ' + msg.substring(4), 'info');
+          } else if (msg.startsWith('pomodoro:')) {
+            updatePomodoroFromRobot(msg.substring(9));
+          } else if (msg === 'rtc:sync_needed') {
+            addLog('RTC sin sincronizar, enviando hora por Bluetooth', 'warn');
+            sendDateTimeToRobot();
+          } else if (msg === 'rtc:ok') {
+            addLog('RTC sincronizado', 'ok');
+          }
+        });
+        await robot.sendCommand('rtc:status');
+        await robot.sendCommand('pomodoro:status');
+      } else {
+        addLog('Error al conectar', 'err');
+      }
+    }
+
+    function disconnectBLE() {
+      robot.disconnect();
+      setConnected(false);
+      addLog('Desconectado', 'warn');
+    }
+
+    async function sendCommand(cmd) {
+      if (!robot.isConnected) { addLog('Sin conexion', 'err'); return; }
+      
+      // Prevent rapid clicks
+      if (commandCooldown) {
+        addLog('Espera un momento...', 'warn');
+        return;
+      }
+      
+      commandCooldown = true;
+      
+      // Disable all command buttons during send
+      allCmdBtns.forEach(b => b.disabled = true);
+      
+      const ok = await robot.sendCommand(cmd);
+      
+      // Re-enable after cooldown
+      setTimeout(() => {
+        commandCooldown = false;
+        if (robot.isConnected) {
+          allCmdBtns.forEach(b => b.disabled = false);
+        }
+      }, COOLDOWN_MS);
+      
+      if (!ok) { addLog(`Fallo: ${cmd}`, 'err'); return; }
+
+      const btn = [...allCmdBtns].find(b => b.onclick?.toString().includes(`'${cmd}'`));
+      
+      if (PulsarC6BLE.isEmotion(cmd)) {
+        currentEmotion.textContent = cmd;
+        if (lastEmotionBtn) lastEmotionBtn.classList.remove('active-cmd');
+        if (btn) { btn.classList.add('active-cmd'); lastEmotionBtn = btn; }
+        addLog(`Emocion: ${cmd}`, 'ok');
+      }
+      if (PulsarC6BLE.isAction(cmd)) {
+        currentAction.textContent = cmd;
+        if (lastActionBtn) lastActionBtn.classList.remove('active-cmd');
+        if (btn) { btn.classList.add('active-cmd'); lastActionBtn = btn; }
+        addLog(`Accion: ${cmd}`, 'ok');
+      }
+    }
+
+    // ---- MESSAGES ----
+    function clearMessageHistory() {
+      messageHistory.innerHTML = '<div class="message-info">Los mensajes aparecerán en la OLED del robot</div>';
+      addLog('Historial de mensajes limpiado', 'info');
+    }
+    
+    function showMessagePlaying(text, durationSeconds = 8) {
+      // Show playing indicator
+      playingMessage.textContent = text;
+      playingTimer.textContent = durationSeconds + 's';
+      messagePlaying.classList.remove('hidden');
+      messagePlaying.classList.add('playing-active');
+      
+      // Clear any existing timer
+      if (currentMessageTimeout) clearTimeout(currentMessageTimeout);
+      if (messageTimerInterval) clearInterval(messageTimerInterval);
+      
+      // Update countdown
+      let remaining = durationSeconds;
+      messageTimerInterval = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          playingTimer.textContent = remaining + 's';
+        } else {
+          clearInterval(messageTimerInterval);
+          messageTimerInterval = null;
+        }
+      }, 1000);
+      
+      // Hide after duration
+      currentMessageTimeout = setTimeout(() => {
+        messagePlaying.classList.remove('playing-active');
+        setTimeout(() => {
+          messagePlaying.classList.add('hidden');
+        }, 300);
+        currentMessageTimeout = null;
+      }, durationSeconds * 1000);
+    }
+    
+    function addMessageToHistory(type, text) {
+      const msgEl = document.createElement('div');
+      msgEl.className = `message-bubble message-${type}`;
+      
+      // Add animation
+      msgEl.style.animation = 'slideIn 0.3s ease-out';
+      
+      const timeEl = document.createElement('div');
+      timeEl.className = 'message-time';
+      timeEl.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      const textEl = document.createElement('div');
+      textEl.className = 'message-text';
+      textEl.textContent = text;
+      
+      // Add icon for sent messages
+      if (type === 'sent') {
+        const iconEl = document.createElement('div');
+        iconEl.className = 'message-icon';
+        iconEl.textContent = '📤';
+        msgEl.appendChild(iconEl);
+      }
+      
+      msgEl.appendChild(textEl);
+      msgEl.appendChild(timeEl);
+      messageHistory.appendChild(msgEl);
+      messageHistory.scrollTop = messageHistory.scrollHeight;
+      
+      // Remove info message if exists
+      const infoMsg = messageHistory.querySelector('.message-info');
+      if (infoMsg) infoMsg.remove();
+      
+      // Limit to last 10 messages
+      const allMessages = messageHistory.querySelectorAll('.message-bubble');
+      if (allMessages.length > 10) {
+        allMessages[0].remove();
+      }
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) {
+        addLog('Escribe un mensaje primero', 'warn');
+        return;
+      }
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return;
+      }
+      
+      // Prevent rapid clicks
+      if (commandCooldown) {
+        addLog('Espera un momento...', 'warn');
+        return;
+      }
+      
+      // Disable button during send
+      sendMessageBtn.disabled = true;
+      messageInput.disabled = true;
+      sendMessageBtn.textContent = 'Enviando...';
+      
+      const ok = await robot.sendCommand('msg:' + text);
+      
+      // Re-enable button
+      setTimeout(() => {
+        if (robot.isConnected) {
+          sendMessageBtn.disabled = false;
+          messageInput.disabled = false;
+        }
+        sendMessageBtn.textContent = 'Enviar';
+      }, COOLDOWN_MS);
+      
+      if (ok) {
+        addMessageToHistory('sent', text);
+        addLog('Mensaje enviado', 'ok');
+        messageInput.value = '';
+        
+        // Calculate display time (same as Arduino: 2s per 20 chars, min 8s, max 60s)
+        const displayTime = Math.max(8, Math.min(60, Math.floor(text.length / 10) + 5));
+        showMessagePlaying(text, displayTime);
+      } else {
+        addLog('Error al enviar mensaje', 'err');
+      }
+    }
+
+    // Quick message sender
+    async function sendQuickMessage(messageKey) {
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return;
+      }
+      
+      // Prevent rapid clicks
+      if (commandCooldown) {
+        addLog('Espera un momento...', 'warn');
+        return;
+      }
+      
+      // Get message (predefined or direct)
+      let text = PREDEFINED_MESSAGES[messageKey] || messageKey;
+      
+      // Replace {NAME} placeholder with device name
+      text = text.replace(/{NAME}/g, currentDeviceName);
+      
+      // Disable buttons during send
+      quickMsgBtns.forEach(b => b.disabled = true);
+      sendMessageBtn.disabled = true;
+      messageInput.disabled = true;
+      
+      const ok = await robot.sendCommand('msg:' + text);
+      
+      // Re-enable button
+      setTimeout(() => {
+        if (robot.isConnected) {
+          quickMsgBtns.forEach(b => b.disabled = false);
+          sendMessageBtn.disabled = false;
+          messageInput.disabled = false;
+        }
+      }, COOLDOWN_MS);
+      
+      if (ok) {
+        const displayText = messageKey === 'kubi-gladiator' ? '🗡️ Mensaje Gladiador' : text;
+        addMessageToHistory('sent', displayText);
+        addLog('Mensaje enviado', 'ok');
+        
+        // Calculate display time
+        const displayTime = Math.max(8, Math.min(60, Math.floor(text.length / 10) + 5));
+        showMessagePlaying(text, displayTime);
+      } else {
+        addLog('Error al enviar mensaje', 'err');
+      }
+    }
+
+    // Send message on Enter key
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // ---- WEATHER FUNCTIONS ----
+    let weatherData = null;
+    // Using Open-Meteo API - Completely FREE, no API key needed!
+    // Works worldwide including CDMX (Ciudad de México)
+    
+    async function fetchWeather() {
+      const fetchBtn = document.getElementById('fetch-weather-btn');
+      const loadingEl = document.getElementById('weather-loading');
+      const dataEl = document.getElementById('weather-data');
+      
+      fetchBtn.disabled = true;
+      fetchBtn.textContent = '🔄 Obteniendo...';
+      loadingEl.textContent = 'Obteniendo ubicación...';
+      
+      try {
+        // Get geolocation
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        
+        const lat = position.coords.latitude.toFixed(2);
+        const lon = position.coords.longitude.toFixed(2);
+        
+        loadingEl.textContent = 'Consultando API del clima...';
+        
+        // Fetch weather from Open-Meteo (FREE, no API key needed!)
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto`;
+        const response = await fetch(weatherUrl);
+        
+        if (!response.ok) {
+          throw new Error('Error en la API del clima');
+        }
+        
+        const data = await response.json();
+        
+        // Get location name using reverse geocoding (also free)
+        let locationName = `${lat}, ${lon}`;
+        try {
+          const geoUrl = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&count=1`;
+          const geoResponse = await fetch(geoUrl);
+          if (geoResponse.ok) {
+            const geoData = await geoResponse.json();
+            if (geoData.results && geoData.results.length > 0) {
+              const place = geoData.results[0];
+              locationName = place.name || place.admin1 || locationName;
+            }
+          }
+        } catch (e) {
+          // If geocoding fails, use coordinates
+        }
+        
+        // Store weather data
+        weatherData = {
+          temp: Math.round(data.current.temperature_2m),
+          humidity: data.current.relative_humidity_2m,
+          weatherCode: data.current.weather_code,
+          location: locationName
+        };
+        
+        // Weather code to description mapping (WMO Weather interpretation codes)
+        const weatherDescriptions = {
+          0: 'despejado', 1: 'mayormente despejado', 2: 'parcialmente nublado', 3: 'nublado',
+          45: 'niebla', 48: 'niebla con escarcha',
+          51: 'llovizna ligera', 53: 'llovizna', 55: 'llovizna densa',
+          61: 'lluvia ligera', 63: 'lluvia', 65: 'lluvia intensa',
+          71: 'nevada ligera', 73: 'nevada', 75: 'nevada intensa',
+          80: 'chubascos ligeros', 81: 'chubascos', 82: 'chubascos intensos',
+          95: 'tormenta', 96: 'tormenta con granizo ligero', 99: 'tormenta con granizo'
+        };
+        const weatherDesc = weatherDescriptions[weatherData.weatherCode] || 'desconocido';
+        
+        // Weather code to icon mapping
+        const weatherIcons = {
+          0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+          45: '🌫️', 48: '🌫️',
+          51: '🌦️', 53: '🌦️', 55: '🌧️',
+          61: '🌧️', 63: '🌧️', 65: '⛈️',
+          71: '🌨️', 73: '❄️', 75: '❄️',
+          80: '🌦️', 81: '🌧️', 82: '⛈️',
+          95: '⛈️', 96: '⛈️', 99: '⛈️'
+        };
+        const weatherIcon = weatherIcons[weatherData.weatherCode] || '🌤️';
+        
+        // Update UI
+        document.getElementById('weather-temp').textContent = weatherData.temp + '°C';
+        document.getElementById('weather-desc').textContent = weatherDesc;
+        document.getElementById('weather-humidity').textContent = weatherData.humidity + '%';
+        document.getElementById('weather-location').textContent = weatherData.location;
+        document.getElementById('weather-icon').textContent = weatherIcon;
+        
+        loadingEl.classList.add('hidden');
+        dataEl.classList.remove('hidden');
+        
+        addLog(`Clima obtenido: ${weatherData.location} ${weatherData.temp}°C`, 'ok');
+        await sendWeatherToRobot();
+      } catch (error) {
+        loadingEl.textContent = 'Error al obtener clima. Verifica permisos de ubicación.';
+        addLog('Error al obtener clima: ' + error.message, 'err');
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.textContent = '🔄 Obtener Clima';
+      }
+    }
+    
+    async function sendWeatherToRobot() {
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return;
+      }
+      if (!weatherData) {
+        addLog('Obtén el clima primero', 'warn');
+        return;
+      }
+      
+      // Weather code to description mapping (simplified for OLED)
+      const weatherDescriptions = {
+        0: 'despejado', 1: 'despejado', 2: 'nublado', 3: 'nublado',
+        45: 'niebla', 48: 'niebla',
+        51: 'llovizna', 53: 'llovizna', 55: 'llovizna',
+        61: 'lluvia', 63: 'lluvia', 65: 'lluvia fuerte',
+        71: 'nieve', 73: 'nieve', 75: 'nieve fuerte',
+        80: 'chubascos', 81: 'chubascos', 82: 'chubascos',
+        95: 'tormenta', 96: 'tormenta', 99: 'tormenta'
+      };
+      const desc = weatherDescriptions[weatherData.weatherCode] || 'variable';
+      
+      const weatherMessage = `weather:${weatherData.temp}|${desc}|${weatherData.location}|${weatherData.humidity}`;
+      const ok = await robot.sendCommand(weatherMessage);
+      
+      if (ok) {
+        addLog('Clima enviado al robot', 'ok');
+      } else {
+        addLog('Error al enviar clima', 'err');
+      }
+    }
+
+    // ---- POMODORO FUNCTIONS ----
+    function setPomodoroControls(running, forceDisabled = false) {
+      pomodoroRunning = running;
+      const connected = robot && robot.isConnected && !forceDisabled;
+      document.getElementById('pomodoro-start-btn').disabled = !connected || running;
+      document.getElementById('pomodoro-pause-btn').disabled = !connected || !running;
+      document.getElementById('pomodoro-reset-btn').disabled = !connected;
+    }
+
+    function updatePomodoroDisplay(totalSeconds, mode, running) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      document.getElementById('pomodoro-timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      const modeEl = document.getElementById('pomodoro-mode');
+      modeEl.textContent = mode === 'work' ? 'TRABAJO' : 'DESCANSO';
+      modeEl.style.color = mode === 'work' ? '#8b5cf6' : '#10b981';
+      document.getElementById('pomodoro-status').textContent = running ? 'En progreso desde Kubi' : 'Pausado en Kubi';
+      setPomodoroControls(running);
+    }
+
+    function updatePomodoroFromRobot(payload) {
+      const parts = payload.split('|');
+      if (parts.length < 3) return;
+
+      const totalSeconds = Math.max(0, parseInt(parts[0], 10) || 0);
+      const mode = parts[1] === 'break' ? 'break' : 'work';
+      const running = parts[2] === 'running';
+
+      updatePomodoroDisplay(totalSeconds, mode, running);
+    }
+
+    async function sendPomodoroControl(action) {
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return false;
+      }
+
+      const workMinutes = document.getElementById('pomodoro-work').value || '25';
+      const breakMinutes = document.getElementById('pomodoro-break').value || '5';
+      const ok = await robot.sendCommand(`pomodoro:${action}|${workMinutes}|${breakMinutes}`);
+
+      if (!ok) {
+        addLog(`Error al enviar Pomodoro: ${action}`, 'err');
+      }
+      return ok;
+    }
+
+    async function startPomodoro() {
+      document.getElementById('pomodoro-status').textContent = 'Sincronizando inicio...';
+      if (await sendPomodoroControl('start')) {
+        addLog('Pomodoro iniciado en Kubi', 'ok');
+      }
+    }
+
+    async function pausePomodoro() {
+      document.getElementById('pomodoro-status').textContent = 'Sincronizando pausa...';
+      if (await sendPomodoroControl('pause')) {
+        addLog('Pomodoro pausado en Kubi', 'info');
+      }
+    }
+
+    async function resetPomodoro() {
+      document.getElementById('pomodoro-status').textContent = 'Sincronizando reset...';
+      if (await sendPomodoroControl('reset')) {
+        addLog('Pomodoro reiniciado en Kubi', 'info');
+      }
+    }
+
+    // ---- DATE/TIME FUNCTIONS ----
+    function updateDateTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      
+      document.getElementById('current-time').textContent = timeStr;
+      document.getElementById('current-date').textContent = dateStr;
+    }
+    
+    async function sendDateTimeToRobot() {
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return;
+      }
+      
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const year = now.getFullYear();
+      const dayName = now.toLocaleDateString('es-ES', { weekday: 'long' });
+      
+      const dateTimeMessage = `datetime:${hours}|${minutes}|${day}|${month}|${year}|${dayName}`;
+      const ok = await robot.sendCommand(dateTimeMessage);
+      
+      if (ok) {
+        addLog('Fecha/Hora enviada', 'ok');
+      } else {
+        addLog('Error al enviar fecha/hora', 'err');
+      }
+    }
+    
+    // Update clock every second
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // ---- EVENTS ----
+    connectBtn.addEventListener('click', connectBLE);
+    disconnectBtn.addEventListener('click', disconnectBLE);
+    hamburgerBtn.addEventListener('click', toggleMenu);
+    menuDisconnectBtn.addEventListener('click', () => {
+      disconnectBLE();
+      closeMenu();
+    });
+    document.addEventListener('click', (event) => {
+      if (hamburgerMenu.classList.contains('hidden')) return;
+      const clickInside = hamburgerMenu.contains(event.target) || hamburgerBtn.contains(event.target);
+      if (!clickInside) closeMenu();
+    });
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installMode = 'prompt';
+      installPwaBtn.classList.remove('hidden');
+      addLog('Puedes instalar la app desde el boton "Instalar app"', 'info');
+    });
+
+    installPwaBtn.addEventListener('click', async () => {
+      if (installMode === 'ios') {
+        addLog('iPhone: pulsa Compartir y luego "Agregar a inicio"', 'info');
+        return;
+      }
+
+      if (!deferredInstallPrompt) {
+        addLog('Instalacion no disponible aun en este navegador', 'warn');
+        return;
+      }
+
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
+        addLog('Instalacion aceptada', 'ok');
+      } else {
+        addLog('Instalacion cancelada', 'warn');
+      }
+      deferredInstallPrompt = null;
+      installPwaBtn.classList.add('hidden');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installPwaBtn.classList.add('hidden');
+      addLog('App instalada correctamente', 'ok');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      robot = new PulsarC6BLE({
+        onLog: msg => addLog(msg, 'info'),
+        onConnected: () => { 
+          const s = robot.getStatus();
+          currentDeviceName = s.deviceName || 'Kubi';
+          setConnected(true, s.deviceName || 'Pulsar C6'); 
+        },
+        onDisconnected: () => { setConnected(false); addLog('Dispositivo desconectado', 'warn'); },
+        onError: msg => addLog(msg, 'err')
+      });
+      setConnected(false);
+      addLog('Pagina lista. Toca "Conectar" para empezar.', 'info');
+
+      // Registrar Service Worker (PWA)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register(`./sw.js?${SW_VERSION}`)
+          .then((reg) => {
+            reg.update();
+            addLog('PWA lista para uso offline', 'info');
+          })
+          .catch(() => {});
+      }
+
+      // iOS Safari no dispara beforeinstallprompt; mostrar guia breve.
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+      if (isIOS && !isStandalone) {
+        installMode = 'ios';
+        installPwaBtn.classList.remove('hidden');
+        addLog('En iPhone: Compartir -> "Agregar a inicio" para instalar', 'info');
+      }
+
+      if (!window.isSecureContext) {
+        addLog('Instalacion PWA requiere HTTPS (o localhost)', 'warn');
+      }
+    });
+  </script>
+</body>
+</html>

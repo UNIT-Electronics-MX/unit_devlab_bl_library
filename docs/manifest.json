@@ -1,0 +1,35 @@
+{
+  "name": "Pulsar C6 - Pet Robot Control",
+  "short_name": "Pulsar C6",
+  "description": "Control del Pulsar C6 Pet Robot via Bluetooth Web",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "./",
+  "id": "./index.html",
+  "background_color": "#fce7ff",
+  "theme_color": "#7c3aed",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "tools"],
+  "shortcuts": [
+    {
+      "name": "Conectar y controlar",
+      "url": "./",
+      "description": "Abre el control BLE del Pulsar C6"
+    }
+  ]
+}
