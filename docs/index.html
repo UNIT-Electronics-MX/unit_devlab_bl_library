@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pulsar C6 - Control</title>
+  <title>Kubi </title>
   <meta name="description" content="Control del Pulsar C6 Pet Robot via Bluetooth Web">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,15 +22,18 @@
 
   <!-- Top bar -->
   <header class="topbar">
-    <div>
-      <div class="topbar-title">Pulsar C6</div>
-      <div class="topbar-sub">Pet Robot &mdash; BLE Control</div>
+    <div class="topbar-brand">
+      <div class="topbar-title">Kubi</div>
+      <div class="topbar-sub"> Robot &mdash; BLE Control</div>
     </div>
     <div class="topbar-right">
       <div class="conn-chip">
         <span class="dot dot-off" id="status-dot"></span>
         <span id="conn-label">Offline</span>
       </div>
+      <div id="device-name-row" class="topbar-device hidden">Dispositivo: <span id="device-name"></span></div>
+      <button id="connect-btn" class="btn-connect nav-connect">Conectar</button>
+      <button id="disconnect-btn" class="btn-disconnect nav-disconnect hidden">Desconectar</button>
       <button id="hamburger-btn" class="hamburger-btn" type="button" aria-label="Menu">☰</button>
     </div>
   </header>
@@ -42,34 +45,19 @@
 
   <main>
 
-    <!-- Connect / Disconnect -->
-    <div id="connect-section" class="section">
-      <div class="section-label">Conexion Bluetooth</div>
-      <div id="device-name-row" class="text-xs text-slate-500 mb-3 hidden">Dispositivo: <span id="device-name"></span></div>
-      <button id="connect-btn" class="btn-connect">Conectar</button>
-      <button id="disconnect-btn" class="btn-disconnect hidden">Desconectar</button>
-    </div>
+  <!-- Internal state values used by the UI logic. Kept hidden from the page. -->
+  <div id="state-section" class="hidden" aria-hidden="true">
+    <span id="current-emotion">---</span>
+    <span id="current-action">---</span>
+  </div>
 
-    <!-- State -->
-    <div class="section">
-      <div class="section-label">Estado Actual</div>
-      <div class="state-row">
-        <div class="state-pill">
-          <div class="state-pill-label">Emocion</div>
-          <div class="state-pill-value" id="current-emotion">---</div>
-        </div>
-        <div class="state-pill">
-          <div class="state-pill-label">Accion</div>
-          <div class="state-pill-value" id="current-action">---</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab Navigation -->
+  <!-- Tab Navigation -->
     <div class="tab-nav">
       <button class="tab-btn tab-active" onclick="switchTab('emotions')">😊 Emociones</button>
       <button class="tab-btn" onclick="switchTab('messages')">💬 Mensajes</button>
-      <button class="tab-btn" onclick="switchTab('actions')">🎬 Acciones</button>
+      <button class="tab-btn" onclick="switchTab('weather')">🌤️ Clima</button>
+      <button class="tab-btn" onclick="switchTab('pomodoro')">🍅 Pomodoro</button>
+      <button class="tab-btn" onclick="switchTab('datetime')">📅 RTC</button>
     </div>
 
     <!-- Tab Content: Emotions -->
@@ -82,6 +70,7 @@
           <button class="cmd-btn e-wink"     onclick="sendCommand('wink')"      disabled><span class="icon">😉</span>Wink</button>
           <button class="cmd-btn e-vomit"    onclick="sendCommand('vomit')"     disabled><span class="icon">🤮</span>Vomit</button>
           <button class="cmd-btn e-angry"    onclick="sendCommand('angry')"     disabled><span class="icon">😠</span>Angry</button>
+          <button id="motion-auto-btn" class="cmd-btn e-motion-auto" onclick="toggleMotionAuto()" disabled><span class="icon">🧭</span>Auto IMU</button>
         </div>
       </div>
     </div>
@@ -133,22 +122,8 @@
       </div>
     </div>
 
-    <!-- Tab Content: Actions -->
-    <div id="tab-actions" class="tab-content">
-      <!-- Robot Actions -->
-      <div class="section">
-        <div class="section-label">Acciones del Robot</div>
-        <div class="cmd-grid cmd-grid-3">
-          <button class="cmd-btn a-standup" onclick="sendCommand('standup')" disabled><span class="icon">📍</span>Stand</button>
-          <button class="cmd-btn a-sit"     onclick="sendCommand('sit')"     disabled><span class="icon">🪑</span>Sit</button>
-          <button class="cmd-btn a-sleep"   onclick="sendCommand('sleep')"   disabled><span class="icon">🛏️</span>Sleep</button>
-          <button class="cmd-btn a-wave"    onclick="sendCommand('wave')"    disabled><span class="icon">👋</span>Wave</button>
-          <button class="cmd-btn a-walk"    onclick="sendCommand('walk')"    disabled><span class="icon">🚶</span>Walk</button>
-          <button class="cmd-btn a-stop"    onclick="sendCommand('stop')"    disabled><span class="icon">⏹</span>Stop</button>
-        </div>
-      </div>
-
-      <!-- Weather Widget -->
+    <!-- Tab Content: Weather -->
+    <div id="tab-weather" class="tab-content">
       <div class="section">
         <div class="section-label">🌤️ Clima Actual (Gratis, sin API key)</div>
         <div id="weather-widget" class="weather-widget">
@@ -177,15 +152,24 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Pomodoro Timer -->
+    <!-- Tab Content: Pomodoro -->
+    <div id="tab-pomodoro" class="tab-content">
       <div class="section">
         <div class="section-label">🍅 Timer Pomodoro</div>
         <div class="pomodoro-widget">
           <div class="pomodoro-display">
-            <div class="pomodoro-mode" id="pomodoro-mode">TRABAJO</div>
-            <div class="pomodoro-timer" id="pomodoro-timer">25:00</div>
-            <div class="pomodoro-status" id="pomodoro-status">Listo para comenzar</div>
+            <div class="pomodoro-topline">
+              <span class="pomodoro-chip" id="pomodoro-mode">TRABAJO</span>
+              <span class="pomodoro-chip pomodoro-chip-muted" id="pomodoro-status">Listo para comenzar</span>
+            </div>
+            <div class="pomodoro-ring" id="pomodoro-ring" style="--progress: 0deg;">
+              <div class="pomodoro-ring-inner">
+                <div class="pomodoro-timer" id="pomodoro-timer">25:00</div>
+                <div class="pomodoro-subtitle">Kubi Focus</div>
+              </div>
+            </div>
           </div>
           <div class="pomodoro-controls">
             <button id="pomodoro-start-btn" class="btn-pomodoro" onclick="startPomodoro()" disabled>▶️ Iniciar</button>
@@ -204,8 +188,10 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Date/Time Widget -->
+    <!-- Tab Content: RTC -->
+    <div id="tab-datetime" class="tab-content">
       <div class="section">
         <div class="section-label">📅 Fecha y Hora</div>
         <div class="datetime-widget">
@@ -219,13 +205,18 @@
     </div>
 
     <!-- Log -->
-    <div class="section">
-      <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
-        Log
-        <button class="log-clear" onclick="clearLog()">Limpiar</button>
+    <div id="log-section" class="section log-section">
+      <div class="section-label log-header">
+        <span>Log</span>
+        <div class="log-actions">
+          <button id="toggle-log-btn" class="log-clear" onclick="toggleLogPanel()">Mostrar</button>
+          <button id="clear-log-btn" class="log-clear hidden" onclick="clearLog()">Limpiar</button>
+        </div>
       </div>
-      <div id="log-box" class="log-box">
-        <div class="log-line info">Esperando conexion BLE...</div>
+      <div id="log-content" class="hidden">
+        <div id="log-box" class="log-box">
+          <div class="log-line info">Esperando conexion BLE...</div>
+        </div>
       </div>
     </div>
 
@@ -255,11 +246,13 @@
     const deviceNameEl  = document.getElementById('device-name');
     const deviceNameRow = document.getElementById('device-name-row');
     const logBox        = document.getElementById('log-box');
+    const logContent    = document.getElementById('log-content');
+    const toggleLogBtn  = document.getElementById('toggle-log-btn');
+    const clearLogBtn   = document.getElementById('clear-log-btn');
     const currentEmotion = document.getElementById('current-emotion');
     const currentAction  = document.getElementById('current-action');
     const allCmdBtns     = document.querySelectorAll('.cmd-btn');
     const installPwaBtn  = document.getElementById('install-pwa-btn');
-    const connectSection = document.getElementById('connect-section');
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const hamburgerMenu = document.getElementById('hamburger-menu');
     const menuDisconnectBtn = document.getElementById('menu-disconnect-btn');
@@ -271,6 +264,7 @@
     const messagePlaying = document.getElementById('message-playing');
     const playingMessage = document.getElementById('playing-message');
     const playingTimer = document.getElementById('playing-timer');
+    const motionAutoBtn = document.getElementById('motion-auto-btn');
 
     let robot = null;
     let lastEmotionBtn = null;
@@ -284,6 +278,7 @@
     let currentMessageTimeout = null;
     let messageTimerInterval = null;
     let pomodoroRunning = false;
+    let motionAutoEnabled = false;
     
     // Predefined messages (use {NAME} placeholder)
     const PREDEFINED_MESSAGES = {
@@ -308,6 +303,12 @@
 
     function clearLog() {
       logBox.innerHTML = '<div class="log-line info">Log limpiado</div>';
+    }
+
+    function toggleLogPanel() {
+      const isHidden = logContent.classList.toggle('hidden');
+      toggleLogBtn.textContent = isHidden ? 'Mostrar' : 'Ocultar';
+      clearLogBtn.classList.toggle('hidden', isHidden);
     }
 
     // ---- TAB NAVIGATION ----
@@ -336,8 +337,6 @@
 
     // ---- UI STATE ----
     function setConnected(connected, deviceName) {
-      const mobile = window.matchMedia('(max-width: 768px)').matches;
-
       if (connected) {
         statusDot.className = 'dot dot-on';
         connLabel.textContent = 'Online';
@@ -348,6 +347,7 @@
           deviceNameRow.classList.remove('hidden');
         }
         allCmdBtns.forEach(b => b.disabled = false);
+        motionAutoBtn.disabled = false;
         messageInput.disabled = false;
         sendMessageBtn.disabled = false;
         quickMsgBtns.forEach(b => b.disabled = false);
@@ -356,7 +356,6 @@
         setPomodoroControls(false);
         menuDisconnectBtn.classList.remove('hidden');
         menuDeviceName.textContent = deviceName ? `Dispositivo: ${deviceName}` : 'Dispositivo conectado';
-        if (mobile) connectSection.classList.add('compact-hide');
       } else {
         statusDot.className = 'dot dot-off';
         connLabel.textContent = 'Offline';
@@ -364,6 +363,8 @@
         disconnectBtn.classList.add('hidden');
         deviceNameRow.classList.add('hidden');
         allCmdBtns.forEach(b => { b.disabled = true; b.classList.remove('active-cmd'); });
+        setMotionAutoUi(false);
+        motionAutoBtn.disabled = true;
         messageInput.disabled = true;
         sendMessageBtn.disabled = true;
         quickMsgBtns.forEach(b => b.disabled = true);
@@ -376,7 +377,6 @@
         lastActionBtn  = null;
         menuDisconnectBtn.classList.add('hidden');
         menuDeviceName.textContent = 'Sin dispositivo conectado';
-        connectSection.classList.remove('compact-hide');
       }
     }
 
@@ -390,10 +390,7 @@
 
     window.addEventListener('resize', () => {
       if (!window.matchMedia('(max-width: 768px)').matches) {
-        connectSection.classList.remove('compact-hide');
         closeMenu();
-      } else if (robot && robot.isConnected) {
-        connectSection.classList.add('compact-hide');
       }
     });
 
@@ -418,15 +415,25 @@
             addLog('Mensaje recibido: ' + msg.substring(4), 'info');
           } else if (msg.startsWith('pomodoro:')) {
             updatePomodoroFromRobot(msg.substring(9));
+          } else if (msg === 'motion:auto:on') {
+            setMotionAutoUi(true);
+            addLog('Auto IMU activado', 'ok');
+          } else if (msg === 'motion:auto:off') {
+            setMotionAutoUi(false);
+            addLog('Auto IMU desactivado', 'info');
+          } else if (msg.startsWith('motion:emotion:')) {
+            const emotion = msg.substring(15);
+            currentEmotion.textContent = emotion;
           } else if (msg === 'rtc:sync_needed') {
             addLog('RTC sin sincronizar, enviando hora por Bluetooth', 'warn');
             sendDateTimeToRobot();
           } else if (msg === 'rtc:ok') {
-            addLog('RTC sincronizado', 'ok');
+            addLog('RTC actualizado', 'ok');
           }
         });
         await robot.sendCommand('rtc:status');
         await robot.sendCommand('pomodoro:status');
+        await robot.sendCommand('motion:auto:status');
       } else {
         addLog('Error al conectar', 'err');
       }
@@ -477,6 +484,28 @@
         if (lastActionBtn) lastActionBtn.classList.remove('active-cmd');
         if (btn) { btn.classList.add('active-cmd'); lastActionBtn = btn; }
         addLog(`Accion: ${cmd}`, 'ok');
+      }
+    }
+
+    function setMotionAutoUi(enabled) {
+      motionAutoEnabled = enabled;
+      motionAutoBtn.classList.toggle('active-cmd', enabled);
+      motionAutoBtn.querySelector('.icon').textContent = enabled ? '✅' : '🧭';
+      currentAction.textContent = enabled ? 'auto imu' : currentAction.textContent;
+    }
+
+    async function toggleMotionAuto() {
+      if (!robot.isConnected) {
+        addLog('Sin conexion', 'err');
+        return;
+      }
+
+      motionAutoBtn.disabled = true;
+      const ok = await robot.sendCommand(motionAutoEnabled ? 'motion:auto:off' : 'motion:auto:on');
+      motionAutoBtn.disabled = false;
+
+      if (!ok) {
+        addLog('Error al cambiar Auto IMU', 'err');
       }
     }
 
@@ -803,6 +832,13 @@
       document.getElementById('pomodoro-reset-btn').disabled = !connected;
     }
 
+    function getPomodoroSessionSeconds(mode) {
+      const inputId = mode === 'break' ? 'pomodoro-break' : 'pomodoro-work';
+      const fallback = mode === 'break' ? 5 : 25;
+      const minutes = Math.max(1, parseInt(document.getElementById(inputId).value, 10) || fallback);
+      return minutes * 60;
+    }
+
     function updatePomodoroDisplay(totalSeconds, mode, running) {
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
@@ -811,8 +847,15 @@
       
       const modeEl = document.getElementById('pomodoro-mode');
       modeEl.textContent = mode === 'work' ? 'TRABAJO' : 'DESCANSO';
-      modeEl.style.color = mode === 'work' ? '#8b5cf6' : '#10b981';
-      document.getElementById('pomodoro-status').textContent = running ? 'En progreso desde Kubi' : 'Pausado en Kubi';
+      const widget = document.querySelector('.pomodoro-widget');
+      widget.classList.toggle('pomodoro-break-mode', mode === 'break');
+
+      const sessionSeconds = Math.max(totalSeconds, getPomodoroSessionSeconds(mode));
+      const completed = sessionSeconds > 0 ? 1 - (totalSeconds / sessionSeconds) : 0;
+      const progressDegrees = Math.max(0, Math.min(360, completed * 360));
+      document.getElementById('pomodoro-ring').style.setProperty('--progress', `${progressDegrees}deg`);
+
+      document.getElementById('pomodoro-status').textContent = running ? 'En progreso' : 'Pausado';
       setPomodoroControls(running);
     }
 
