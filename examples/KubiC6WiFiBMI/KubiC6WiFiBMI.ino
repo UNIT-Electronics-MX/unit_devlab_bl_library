@@ -38,6 +38,14 @@ int32_t ax_zero = 0, ay_zero = 0, az_zero = 0;
 const int eyeLX = 38, eyeRX = 90, eyeY = 32;
 const int eyeW = 15, eyeH = 12, pupilR = 5;
 
+// ---- Pomodoro ----
+unsigned long pomodoroTotal   = 25UL * 60UL * 1000UL;
+unsigned long pomodoroStart   = 0;
+unsigned long pomodoroElapsed = 0;
+bool pomodoroRunning  = false;
+bool pomodoroDone     = false;
+unsigned long pomodoroDoneAt = 0;
+
 // ---- Parpadeo ----
 
 void actualizarParpadeo() {
@@ -50,10 +58,10 @@ void actualizarParpadeo() {
 }
 
 int calcApertura(int base, bool parpadear) {
-  if (!parpadear)        return base;
-  if (blinkState == 1)   return base / 2;
-  if (blinkState == 2)   return 1;
-  if (blinkState == 3)   return base / 2;
+  if (!parpadear)      return base;
+  if (blinkState == 1) return base / 2;
+  if (blinkState == 2) return 1;
+  if (blinkState == 3) return base / 2;
   return base;
 }
 
@@ -83,10 +91,31 @@ void drawEye(int cx, int cy, int aperturaH, int px, int py) {
 // ---- Emociones ----
 
 void ojosHappy() {
+
   int ap = calcApertura(eyeH, true);
+
   u8g2.clearBuffer();
-  drawEye(eyeLX, eyeY, ap, lookX, lookY);
-  drawEye(eyeRX, eyeY, ap, lookX, lookY);
+
+  drawEye(
+    eyeLX,
+    eyeY,
+    ap,
+    lookX,
+    lookY
+  );
+
+  drawEye(
+    eyeRX,
+    eyeY,
+    ap,
+    lookX,
+    lookY
+  );
+
+  // Boca feliz
+  // Boca feliz
+u8g2.drawCircle(64, 46, 8, U8G2_DRAW_LOWER_LEFT | U8G2_DRAW_LOWER_RIGHT);
+
   u8g2.sendBuffer();
 }
 
@@ -123,9 +152,41 @@ void ojosSleepy() {
 }
 
 void ojosSurprised() {
+
   u8g2.clearBuffer();
-  drawEye(eyeLX, eyeY, eyeH + 4, 0, 0);
-  drawEye(eyeRX, eyeY, eyeH + 4, 0, 0);
+
+  drawEye(
+    eyeLX,
+    eyeY,
+    eyeH + 4,
+    0,
+    0
+  );
+
+  drawEye(
+    eyeRX,
+    eyeY,
+    eyeH + 4,
+    0,
+    0
+  );
+
+
+  // Boca sorprendida
+  for(int y = -4; y <= 4; y++) {
+
+    for(int x = -4; x <= 4; x++) {
+
+      if(x*x + y*y <= 16) {
+
+        u8g2.drawPixel(
+          64 + x,
+          50 + y
+        );
+      }
+    }
+  }
+
   u8g2.sendBuffer();
 }
 
@@ -156,6 +217,16 @@ void mostrarEmocion() {
   else                                    ojosHappy();
 }
 
+// ---- Helpers OLED estilo Fallout ----
+
+void drawFalloutHeader(const char* label) {
+  u8g2.drawFrame(0, 0, 128, 64);
+  u8g2.drawHLine(1, 12, 126);
+  u8g2.setFont(u8g2_font_04b_03_tr);
+  u8g2.drawStr(3, 9, label);
+  if ((animFrame / 12) % 2 == 0) u8g2.drawBox(119, 3, 5, 7);
+}
+
 // ---- Reloj ----
 
 void drawClock() {
@@ -165,45 +236,30 @@ void drawClock() {
   snprintf(tb, sizeof(tb), "%02d:%02d", t.tm_hour, t.tm_min);
   snprintf(db, sizeof(db), "%02d/%02d/%04d", t.tm_mday, t.tm_mon + 1, t.tm_year + 1900);
 
-  // Marco exterior
   u8g2.drawFrame(0, 0, 122, 64);
-  // Marco interior (área útil real: x=5..117, y=5..57)
   u8g2.drawFrame(3, 3, 116, 58);
-
-  // Esquinas anguladas estilo terminal Pip-Boy
-  u8g2.drawLine(0, 7,  7,  0);
+  u8g2.drawLine(0, 7,   7,  0);
   u8g2.drawLine(114, 0, 121, 7);
-  u8g2.drawLine(0, 56, 7,  63);
+  u8g2.drawLine(0, 56,  7,  63);
   u8g2.drawLine(114, 63, 121, 56);
 
-  // Etiqueta superior — fuente pequeña dentro del marco [5,5..11]
   u8g2.setFont(u8g2_font_04b_03_tr);
   u8g2.drawStr(6, 11, "Hora actual");
-
-  // Indicador RTC alineado a la derecha
   u8g2.drawStr(101, 11, "RTC");
-
-  // Línea separadora decorativa bajo la cabecera
   u8g2.drawHLine(5, 13, 112);
 
-  // Hora grande — logisoso28, área [5,15]..[117,46]
   u8g2.setFont(u8g2_font_logisoso28_tf);
   u8g2.drawStr((128 - u8g2.getStrWidth(tb)) / 2, 44, tb);
 
-  // Parpadeo de dos puntos: borra la columna cada segundo impar
   if ((t.tm_sec % 2) != 0) {
     u8g2.setDrawColor(0);
     u8g2.drawBox(56, 16, 14, 28);
     u8g2.setDrawColor(1);
   }
 
-  // Línea separadora decorativa sobre la fecha
   u8g2.drawHLine(5, 47, 112);
-
-  // Fecha pequeña centrada — área [5,48..57]
   u8g2.setFont(u8g2_font_04b_03_tr);
   u8g2.drawStr((128 - u8g2.getStrWidth(db)) / 2, 56, db);
-
   u8g2.sendBuffer();
 }
 
@@ -211,36 +267,70 @@ void drawClock() {
 
 void drawMessage() {
   u8g2.clearBuffer();
+  drawFalloutHeader("// INCOMING MSG //");
 
-  // Marco + etiqueta estilo terminal
-  u8g2.drawFrame(0, 0, 128, 64);
-  u8g2.drawHLine(1, 12, 126);
-  u8g2.setFont(u8g2_font_04b_03_tr);
-  u8g2.drawStr(3, 9, "// INCOMING MSG //");
-
-  // Cursor de bloque parpadeante (usa animFrame del loop)
-  if ((animFrame / 12) % 2 == 0) u8g2.drawBox(113, 3, 5, 7);
-
-  // Texto del mensaje — fuente 10x13, área útil [2,14]..[126,54]
-  // Divide en dos líneas de máx 12 chars para que quepan con 10px de ancho (10*12=120 < 124)
   u8g2.setFont(u8g2_font_10x20_tr);
   int tw = currentMessage.length() * 10;
-
   if (tw <= 120) {
-    // Cabe en una línea — centrar verticalmente en el área
     u8g2.drawStr(3, 38, currentMessage.c_str());
   } else {
-    // Scroll horizontal con fuente grande
     u8g2.drawStr(textScrollX, 38, currentMessage.c_str());
     if (millis() - lastScroll > 45) {
       lastScroll = millis();
       if (--textScrollX < -tw) textScrollX = 128;
     }
   }
-
-  // Línea de estado inferior
   u8g2.setFont(u8g2_font_04b_03_tr);
   u8g2.drawStr(3, 61, "> END OF MESSAGE_");
+  u8g2.sendBuffer();
+}
+
+// ---- Pomodoro ----
+
+void drawPomodoro() {
+  u8g2.clearBuffer();
+  drawFalloutHeader("// POMODORO //");
+
+  unsigned long remaining;
+  if (pomodoroDone) {
+    remaining = 0;
+  } else if (pomodoroRunning) {
+    unsigned long elapsed = pomodoroElapsed + (millis() - pomodoroStart);
+    remaining = (elapsed >= pomodoroTotal) ? 0 : (pomodoroTotal - elapsed);
+    if (remaining == 0 && !pomodoroDone) {
+      pomodoroDone  = true;
+      pomodoroDoneAt = millis();
+      pomodoroRunning = false;
+      currentEmotion = "surprised";
+    }
+  } else {
+    remaining = pomodoroTotal - pomodoroElapsed;
+  }
+
+  unsigned long secs = remaining / 1000;
+  unsigned long mm   = secs / 60;
+  unsigned long ss   = secs % 60;
+  char timeBuf[8];
+  snprintf(timeBuf, sizeof(timeBuf), "%02lu:%02lu", mm, ss);
+
+  // Tiempo grande
+  u8g2.setFont(u8g2_font_logisoso28_tf);
+  u8g2.drawStr((128 - u8g2.getStrWidth(timeBuf)) / 2, 46, timeBuf);
+
+  // Barra de progreso — área [3,50]..[125,56]
+  u8g2.drawFrame(3, 48, 122, 6);
+  if (pomodoroTotal > 0 && !pomodoroDone) {
+    unsigned long elapsed = pomodoroElapsed + (pomodoroRunning ? (millis() - pomodoroStart) : 0);
+    int filled = (int)(118UL * elapsed / pomodoroTotal);
+    if (filled > 0) u8g2.drawBox(4, 49, filled, 4);
+  }
+
+  // Estado inferior
+  u8g2.setFont(u8g2_font_04b_03_tr);
+  if (pomodoroDone)          u8g2.drawStr(3, 61, "> TIME UP! WELL DONE_");
+  else if (pomodoroRunning)  u8g2.drawStr(3, 61, "> FOCUS MODE ACTIVE_");
+  else if (pomodoroElapsed > 0) u8g2.drawStr(3, 61, "> PAUSED_");
+  else                       u8g2.drawStr(3, 61, "> READY_");
 
   u8g2.sendBuffer();
 }
@@ -283,35 +373,31 @@ void calibrateBMI() {
 
 unsigned long getEmotionDelay(const String &e) {
   if (e == "surprised" || e == "vomit") return 0;
-  if (e == "angry")   return 300;
-  if (e == "sad")     return 1000;
-  if (e == "sleepy")  return 2000;
+  if (e == "angry")  return 300;
+  if (e == "sad")    return 1000;
+  if (e == "sleepy") return 2000;
   return 1000;
 }
 
 String detectEmotion(int16_t ax, int16_t ay, int16_t az,
                      int16_t gx, int16_t gy, int16_t gz) {
-  int32_t ax_rel = ax - ax_zero;
-  int32_t ay_rel = ay - ay_zero;
-  int32_t az_rel = az - az_zero;
   int motion = abs(gx) + abs(gy) + abs(gz);
 
   String next;
-  if      (motion > 55000)                  next = "vomit";
-  else if (az < -12000 && motion < 1000)    next = "sleepy";
-  else if (motion > 30000)                  next = "angry";
-  else if (motion > 20000)                  next = "surprised";
-  else                                      next = "happy";
+  if      (motion > 55000)               next = "vomit";
+  else if (az < -12000 && motion < 1000) next = "sleepy";
+  else if (motion > 30000)               next = "angry";
+  else if (motion > 20000)               next = "surprised";
+  else                                   next = "happy";
 
   if (next != pendingEmotion) { pendingEmotion = next; emotionTimer = millis(); }
   if (millis() - emotionTimer > getEmotionDelay(pendingEmotion)) currentEmotion = pendingEmotion;
-
   return currentEmotion;
 }
 
 // ---- Web handlers ----
 
-void handleRoot()      { server.send(200, "text/html", HTML_PAGE); }
+void handleRoot()    { server.send(200, "text/html", HTML_PAGE); }
 
 void handleEmotion() {
   if (server.hasArg("name")) {
@@ -323,7 +409,7 @@ void handleEmotion() {
 }
 
 void handleClock() {
-  currentEmotion = "clock"; drawClock();
+  currentEmotion = "clock";
   server.send(200, "text/plain", "CLOCK");
 }
 
@@ -354,6 +440,44 @@ void handleAutoMode() {
   server.send(200, "text/plain", autoMode ? "AUTO ON" : "AUTO OFF");
 }
 
+void handlePomodoro() {
+  String action = server.hasArg("action") ? server.arg("action") : "";
+
+  if (action == "start") {
+    if (!pomodoroRunning && !pomodoroDone) {
+      if (server.hasArg("minutes"))
+        pomodoroTotal = (unsigned long)server.arg("minutes").toInt() * 60UL * 1000UL;
+      pomodoroStart   = millis();
+      pomodoroRunning = true;
+      currentEmotion  = "pomodoro";
+    }
+  } else if (action == "pause") {
+    if (pomodoroRunning) {
+      pomodoroElapsed += millis() - pomodoroStart;
+      pomodoroRunning  = false;
+      currentEmotion   = "pomodoro";
+    }
+  } else if (action == "resume") {
+    if (!pomodoroRunning && !pomodoroDone) {
+      pomodoroStart   = millis();
+      pomodoroRunning = true;
+      currentEmotion  = "pomodoro";
+    }
+  } else if (action == "reset") {
+    pomodoroRunning  = false;
+    pomodoroDone     = false;
+    pomodoroElapsed  = 0;
+    pomodoroStart    = 0;
+    if (server.hasArg("minutes"))
+      pomodoroTotal = (unsigned long)server.arg("minutes").toInt() * 60UL * 1000UL;
+    currentEmotion = "pomodoro";
+  } else if (action == "show") {
+    currentEmotion = "pomodoro";
+  }
+
+  server.send(200, "text/plain", "POMODORO OK");
+}
+
 // ---- Setup ----
 
 void setup() {
@@ -375,12 +499,13 @@ void setup() {
   WiFi.softAP(AP_SSID, AP_PASS);
   Serial.println("AP READY — IP: " + WiFi.softAPIP().toString());
 
-  server.on("/",        handleRoot);
-  server.on("/emotion", handleEmotion);
-  server.on("/clock",   handleClock);
-  server.on("/message", handleMessage);
-  server.on("/setTime", handleSetTime);
-  server.on("/auto",    handleAutoMode);
+  server.on("/",          handleRoot);
+  server.on("/emotion",   handleEmotion);
+  server.on("/clock",     handleClock);
+  server.on("/message",   handleMessage);
+  server.on("/setTime",   handleSetTime);
+  server.on("/auto",      handleAutoMode);
+  server.on("/pomodoro",  handlePomodoro);
   server.begin();
   Serial.println("WEB SERVER READY");
 }
@@ -401,13 +526,23 @@ void loop() {
     lookY = (r == 2) ? -2 : (r == 3) ? 2 : 0;
   }
 
-  if (autoMode) {
+  // Limpiar pantalla de pomodoro completado tras 4 segundos
+  if (pomodoroDone && (millis() - pomodoroDoneAt > 4000)) {
+    pomodoroDone    = false;
+    pomodoroElapsed = 0;
+    currentEmotion  = "happy";
+  }
+
+  if (autoMode && currentEmotion != "clock"    &&
+                  currentEmotion != "message"  &&
+                  currentEmotion != "pomodoro") {
     int16_t ax, ay, az, gx, gy, gz;
     if (readMotion6(ax, ay, az, gx, gy, gz))
       currentEmotion = detectEmotion(ax, ay, az, gx, gy, gz);
   }
 
-  if      (currentEmotion == "clock")   drawClock();
-  else if (currentEmotion == "message") drawMessage();
-  else                                  mostrarEmocion();
+  if      (currentEmotion == "clock")    drawClock();
+  else if (currentEmotion == "message")  drawMessage();
+  else if (currentEmotion == "pomodoro") drawPomodoro();
+  else                                   mostrarEmocion();
 }
