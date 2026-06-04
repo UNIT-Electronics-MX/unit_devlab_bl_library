@@ -75,7 +75,7 @@ class PulsarC6BLE {
 
       this.isConnected = true;
       this.onConnected();
-      this.log('✅ Conectado');
+      this.log('Conectado');
 
       return true;
     } catch (error) {
@@ -84,7 +84,7 @@ class PulsarC6BLE {
         ? 'Dispositivo no encontrado'
         : error.message;
       this.onError(msg);
-      this.log(`❌ Error: ${msg}`);
+      this.log(`Error: ${msg}`);
       return false;
     }
   }
@@ -102,11 +102,11 @@ class PulsarC6BLE {
         const value = event.target.value;
         callback(value);
       });
-      this.log('✅ Notificaciones activadas');
+      this.log('Notificaciones activadas');
       return true;
     } catch (error) {
       this.onError(`Error al suscribir: ${error.message}`);
-      this.log(`❌ Error: ${error.message}`);
+      this.log(`Error: ${error.message}`);
       return false;
     }
   }
@@ -155,11 +155,11 @@ class PulsarC6BLE {
       try {
         const encoder = new TextEncoder();
         await this.characteristic.writeValue(encoder.encode(command));
-        this.log(`📤 Enviado: ${command}`);
+        this.log(`Enviado: ${command}`);
         resolve(true);
       } catch (error) {
         this.onError(`Error al enviar: ${error.message}`);
-        this.log(`❌ Error: ${error.message}`);
+        this.log(`Error: ${error.message}`);
         resolve(false);
       } finally {
         this.operationInProgress = false;

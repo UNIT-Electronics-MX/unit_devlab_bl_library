@@ -7,11 +7,11 @@
   <meta name="description" content="Control del Pulsar C6 Pet Robot via Bluetooth Web">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#7c3aed">
+  <meta name="theme-color" content="#eef8f6">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="bluetooth-icon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=12">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- <style>
    
@@ -19,12 +19,125 @@
 </head>
 
 <body>
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <symbol id="icon-kubi" viewBox="0 0 24 24">
+      <rect x="5" y="7" width="14" height="12" rx="4"></rect>
+      <path d="M12 7V4"></path>
+      <circle cx="12" cy="3" r="1.4"></circle>
+      <circle cx="10" cy="12" r="1.2"></circle>
+      <circle cx="15" cy="12" r="1.2"></circle>
+      <path d="M9.5 16c1.7 1.2 3.3 1.2 5 0"></path>
+      <path d="M3.5 12h1.5M19 12h1.5"></path>
+    </symbol>
+    <symbol id="icon-bluetooth" viewBox="0 0 24 24">
+      <path d="M7 7l10 10-5 4V3l5 4L7 17"></path>
+    </symbol>
+    <symbol id="icon-smile" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <circle cx="9" cy="10" r="1"></circle>
+      <circle cx="15" cy="10" r="1"></circle>
+      <path d="M8 15c2.4 2 5.6 2 8 0"></path>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24">
+      <path d="M18 16.5A8 8 0 0 1 9.5 5 8.5 8.5 0 1 0 18 16.5Z"></path>
+      <path d="M7 6h.01M5 10h.01"></path>
+    </symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24">
+      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"></path>
+      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"></path>
+    </symbol>
+    <symbol id="icon-wink" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8.5 10h2.5"></path>
+      <circle cx="15.5" cy="10" r="1"></circle>
+      <path d="M8.5 15c2.2 1.8 4.8 1.8 7 0"></path>
+    </symbol>
+    <symbol id="icon-cloud" viewBox="0 0 24 24">
+      <path d="M7.5 18h9a4 4 0 0 0 .5-8 6 6 0 0 0-11.2 2A3.2 3.2 0 0 0 7.5 18Z"></path>
+    </symbol>
+    <symbol id="icon-angry" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8 9l3 1M16 9l-3 1"></path>
+      <path d="M9 16h6"></path>
+    </symbol>
+    <symbol id="icon-compass" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M15.5 8.5l-2 5-5 2 2-5 5-2Z"></path>
+    </symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24">
+      <path d="M5 6h14v10H9l-4 3V6Z"></path>
+      <path d="M8 10h8M8 13h5"></path>
+    </symbol>
+    <symbol id="icon-sun-cloud" viewBox="0 0 24 24">
+      <circle cx="8" cy="8" r="3"></circle>
+      <path d="M8 1.8v2M8 12v2M1.8 8h2M12 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4"></path>
+      <path d="M9 19h9a3.5 3.5 0 0 0 .4-7A5 5 0 0 0 9.2 14 2.8 2.8 0 0 0 9 19Z"></path>
+    </symbol>
+    <symbol id="icon-timer" viewBox="0 0 24 24">
+      <circle cx="12" cy="13" r="8"></circle>
+      <path d="M9 2h6M12 2v3M12 13l3-3"></path>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 7v5l3 2"></path>
+    </symbol>
+    <symbol id="icon-send" viewBox="0 0 24 24">
+      <path d="M3 11l18-8-8 18-2-8-8-2Z"></path>
+      <path d="M11 13l5-5"></path>
+    </symbol>
+    <symbol id="icon-broom" viewBox="0 0 24 24">
+      <path d="M14 4l6 6"></path>
+      <path d="M12 6l6 6-7 7H5l-2-2 7-7Z"></path>
+      <path d="M6 18l-2 2M10 18v3M14 16l2 2"></path>
+    </symbol>
+    <symbol id="icon-tag" viewBox="0 0 24 24">
+      <path d="M4 12V5h7l9 9-7 7-9-9Z"></path>
+      <circle cx="8" cy="8" r="1"></circle>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M8 12.5l3 3 5.5-6"></path>
+    </symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24">
+      <path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 16.9 6.6 19.8l1-6.1-4.4-4.3 6.1-.9L12 3Z"></path>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M10 8l6 4-6 4V8Z"></path>
+    </symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M9 8v8M15 8v8"></path>
+    </symbol>
+    <symbol id="icon-reset" viewBox="0 0 24 24">
+      <path d="M5 12a7 7 0 1 0 2-5"></path>
+      <path d="M5 5v5h5"></path>
+    </symbol>
+    <symbol id="icon-droplet" viewBox="0 0 24 24">
+      <path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11Z"></path>
+    </symbol>
+    <symbol id="icon-pin" viewBox="0 0 24 24">
+      <path d="M12 21s7-5.8 7-12a7 7 0 0 0-14 0c0 6.2 7 12 7 12Z"></path>
+      <circle cx="12" cy="9" r="2.2"></circle>
+    </symbol>
+    <symbol id="icon-oled" viewBox="0 0 24 24">
+      <rect x="4" y="5" width="16" height="12" rx="2"></rect>
+      <path d="M9 21h6M12 17v4"></path>
+      <path d="M8 10h8M8 13h5"></path>
+    </symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24">
+      <path d="M15 5l-7 7 7 7"></path>
+    </symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+      <path d="M9 5l7 7-7 7"></path>
+    </symbol>
+  </svg>
 
   <!-- Top bar -->
   <header class="topbar">
     <div class="topbar-brand">
-      <div class="topbar-title">Kubi</div>
-      <div class="topbar-sub"> Robot &mdash; BLE Control</div>
+      <div class="topbar-title"><svg class="ui-icon brand-icon"><use href="#icon-kubi"></use></svg>Kubi</div>
+      <div class="topbar-sub">Robot BLE Control</div>
     </div>
     <div class="topbar-right">
       <div class="conn-chip">
@@ -32,9 +145,11 @@
         <span id="conn-label">Offline</span>
       </div>
       <div id="device-name-row" class="topbar-device hidden">Dispositivo: <span id="device-name"></span></div>
-      <button id="connect-btn" class="btn-connect nav-connect">Conectar</button>
+      <button id="connect-btn" class="btn-connect nav-connect"><svg class="ui-icon"><use href="#icon-bluetooth"></use></svg><span>Conectar</span></button>
       <button id="disconnect-btn" class="btn-disconnect nav-disconnect hidden">Desconectar</button>
-      <button id="hamburger-btn" class="hamburger-btn" type="button" aria-label="Menu">☰</button>
+      <button id="hamburger-btn" class="hamburger-btn" type="button" aria-label="Menu">
+        <span class="hamburger-lines" aria-hidden="true"></span>
+      </button>
     </div>
   </header>
 
@@ -52,25 +167,33 @@
   </div>
 
   <!-- Tab Navigation -->
-    <div class="tab-nav">
-      <button class="tab-btn tab-active" onclick="switchTab('emotions')">😊 Emociones</button>
-      <button class="tab-btn" onclick="switchTab('messages')">💬 Mensajes</button>
-      <button class="tab-btn" onclick="switchTab('weather')">🌤️ Clima</button>
-      <button class="tab-btn" onclick="switchTab('pomodoro')">🍅 Pomodoro</button>
-      <button class="tab-btn" onclick="switchTab('datetime')">📅 RTC</button>
+    <div class="action-carousel" aria-label="Acciones principales">
+      <button id="action-prev" class="carousel-arrow" type="button" aria-label="Accion anterior">
+        <svg class="ui-icon"><use href="#icon-chevron-left"></use></svg>
+      </button>
+      <div id="action-carousel-track" class="tab-nav" tabindex="0">
+        <button class="tab-btn tab-active" onclick="switchTab('emotions', this)"><svg class="ui-icon"><use href="#icon-smile"></use></svg><span>Emociones</span></button>
+        <button class="tab-btn" onclick="switchTab('messages', this)"><svg class="ui-icon"><use href="#icon-chat"></use></svg><span>Mensajes</span></button>
+        <button class="tab-btn" onclick="switchTab('weather', this)"><svg class="ui-icon"><use href="#icon-sun-cloud"></use></svg><span>Clima</span></button>
+        <button class="tab-btn" onclick="switchTab('pomodoro', this)"><svg class="ui-icon"><use href="#icon-timer"></use></svg><span>Pomodoro</span></button>
+        <button class="tab-btn" onclick="switchTab('datetime', this)"><svg class="ui-icon"><use href="#icon-clock"></use></svg><span>RTC</span></button>
+      </div>
+      <button id="action-next" class="carousel-arrow" type="button" aria-label="Accion siguiente">
+        <svg class="ui-icon"><use href="#icon-chevron-right"></use></svg>
+      </button>
     </div>
 
     <!-- Tab Content: Emotions -->
     <div id="tab-emotions" class="tab-content tab-content-active">
       <div class="section">
         <div class="cmd-grid cmd-grid-5">
-          <button class="cmd-btn e-happy"    onclick="sendCommand('happy')"     disabled><span class="icon">😊</span>Happy</button>
-          <button class="cmd-btn e-sleepy"   onclick="sendCommand('sleepy')"    disabled><span class="icon">😴</span>Sleepy</button>
-          <button class="cmd-btn e-surprised"onclick="sendCommand('surprised')" disabled><span class="icon">😲</span>Wow</button>
-          <button class="cmd-btn e-wink"     onclick="sendCommand('wink')"      disabled><span class="icon">😉</span>Wink</button>
-          <button class="cmd-btn e-vomit"    onclick="sendCommand('vomit')"     disabled><span class="icon">🤮</span>Vomit</button>
-          <button class="cmd-btn e-angry"    onclick="sendCommand('angry')"     disabled><span class="icon">😠</span>Angry</button>
-          <button id="motion-auto-btn" class="cmd-btn e-motion-auto" onclick="toggleMotionAuto()" disabled><span class="icon">🧭</span>Auto IMU</button>
+          <button class="cmd-btn e-happy"    onclick="sendCommand('happy')"     disabled><svg class="ui-icon"><use href="#icon-smile"></use></svg><span>Feliz</span></button>
+          <button class="cmd-btn e-sleepy"   onclick="sendCommand('sleepy')"    disabled><svg class="ui-icon"><use href="#icon-moon"></use></svg><span>Dormir</span></button>
+          <button class="cmd-btn e-surprised"onclick="sendCommand('surprised')" disabled><svg class="ui-icon"><use href="#icon-spark"></use></svg><span>Sorpresa</span></button>
+          <button class="cmd-btn e-wink"     onclick="sendCommand('wink')"      disabled><svg class="ui-icon"><use href="#icon-wink"></use></svg><span>Guiño</span></button>
+          <button class="cmd-btn e-vomit"    onclick="sendCommand('vomit')"     disabled><svg class="ui-icon"><use href="#icon-cloud"></use></svg><span>Mareado</span></button>
+          <button class="cmd-btn e-angry"    onclick="sendCommand('angry')"     disabled><svg class="ui-icon"><use href="#icon-angry"></use></svg><span>Enojo</span></button>
+          <button id="motion-auto-btn" class="cmd-btn e-motion-auto" onclick="toggleMotionAuto()" disabled><svg class="ui-icon motion-icon"><use id="motion-auto-icon-use" href="#icon-compass"></use></svg><span>Auto IMU</span></button>
         </div>
       </div>
     </div>
@@ -80,7 +203,7 @@
       <div class="section">
         <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
           Enviar Mensaje
-          <button class="log-clear" onclick="clearMessageHistory()">Limpiar</button>
+          <button class="log-clear" onclick="clearMessageHistory()"><svg class="ui-icon"><use href="#icon-broom"></use></svg><span>Limpiar</span></button>
         </div>
         <div class="message-input-row">
           <input 
@@ -91,18 +214,18 @@
             maxlength="100"
             disabled
           />
-          <button id="send-message-btn" class="btn-send-message" onclick="sendMessage()" disabled>Enviar</button>
+          <button id="send-message-btn" class="btn-send-message" onclick="sendMessage()" disabled><svg class="ui-icon"><use href="#icon-send"></use></svg><span>Enviar</span></button>
         </div>
         
         <!-- Quick Messages -->
         <div class="quick-messages">
           <div class="quick-msg-label">Mensajes rápidos:</div>
           <div class="quick-msg-grid">
-            <button class="quick-msg-btn" onclick="sendQuickMessage('hello')" disabled>👋 Hola</button>
-            <button class="quick-msg-btn" onclick="sendQuickMessage('my-name')" disabled>🏷️ Mi nombre</button>
-            <button class="quick-msg-btn" onclick="sendQuickMessage('ready')" disabled>✅ Listo?</button>
-            <button class="quick-msg-btn" onclick="sendQuickMessage('good')" disabled>⭐ Bien!</button>
-            <button class="quick-msg-btn quick-msg-gladiator" onclick="sendQuickMessage('kubi-gladiator')" disabled>🗡️ Gladiador</button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('hello')" disabled><svg class="ui-icon"><use href="#icon-chat"></use></svg><span>Hola</span></button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('my-name')" disabled><svg class="ui-icon"><use href="#icon-tag"></use></svg><span>Mi nombre</span></button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('ready')" disabled><svg class="ui-icon"><use href="#icon-check"></use></svg><span>Listo?</span></button>
+            <button class="quick-msg-btn" onclick="sendQuickMessage('good')" disabled><svg class="ui-icon"><use href="#icon-star"></use></svg><span>Bien!</span></button>
+            <button class="quick-msg-btn quick-msg-gladiator" onclick="sendQuickMessage('kubi-gladiator')" disabled><svg class="ui-icon"><use href="#icon-spark"></use></svg><span>Gladiador</span></button>
           </div>
         </div>
         
@@ -112,7 +235,7 @@
         
         <!-- Message playing indicator -->
         <div id="message-playing" class="message-playing hidden">
-          <div class="playing-icon">🔊</div>
+          <div class="playing-icon"><svg class="ui-icon"><use href="#icon-oled"></use></svg></div>
           <div class="playing-text">
             <div class="playing-label">Reproduciendo en OLED...</div>
             <div id="playing-message" class="playing-message-text"></div>
@@ -125,12 +248,15 @@
     <!-- Tab Content: Weather -->
     <div id="tab-weather" class="tab-content">
       <div class="section">
-        <div class="section-label">🌤️ Clima Actual (Gratis, sin API key)</div>
+        <div class="section-label">Clima actual</div>
         <div id="weather-widget" class="weather-widget">
           <div id="weather-loading" class="weather-loading">Presiona el botón para obtener el clima de tu ubicación</div>
           <div id="weather-data" class="weather-data hidden">
             <div class="weather-row">
-              <div class="weather-icon-large" id="weather-icon">☀️</div>
+              <div class="weather-icon-large" id="weather-icon">
+                <svg class="ui-icon"><use id="weather-symbol" href="#icon-sun-cloud"></use></svg>
+                <span id="weather-icon-label">Clima</span>
+              </div>
               <div class="weather-main">
                 <div class="weather-temp" id="weather-temp">--°C</div>
                 <div class="weather-desc" id="weather-desc">--</div>
@@ -138,17 +264,17 @@
             </div>
             <div class="weather-details">
               <div class="weather-detail">
-                <span class="detail-label">💧 Humedad:</span>
+                <span class="detail-label"><svg class="ui-icon"><use href="#icon-droplet"></use></svg>Humedad:</span>
                 <span id="weather-humidity">--%</span>
               </div>
               <div class="weather-detail">
-                <span class="detail-label">📍 Ubicación:</span>
+                <span class="detail-label"><svg class="ui-icon"><use href="#icon-pin"></use></svg>Ubicacion:</span>
                 <span id="weather-location">--</span>
               </div>
             </div>
           </div>
           <div class="weather-buttons">
-            <button id="fetch-weather-btn" class="btn-weather" onclick="fetchWeather()">🔄 Obtener Clima</button>
+            <button id="fetch-weather-btn" class="btn-weather" onclick="fetchWeather()"><svg class="ui-icon"><use href="#icon-sun-cloud"></use></svg><span>Obtener clima</span></button>
           </div>
         </div>
       </div>
@@ -157,7 +283,7 @@
     <!-- Tab Content: Pomodoro -->
     <div id="tab-pomodoro" class="tab-content">
       <div class="section">
-        <div class="section-label">🍅 Timer Pomodoro</div>
+        <div class="section-label">Timer Pomodoro</div>
         <div class="pomodoro-widget">
           <div class="pomodoro-display">
             <div class="pomodoro-topline">
@@ -172,17 +298,17 @@
             </div>
           </div>
           <div class="pomodoro-controls">
-            <button id="pomodoro-start-btn" class="btn-pomodoro" onclick="startPomodoro()" disabled>▶️ Iniciar</button>
-            <button id="pomodoro-pause-btn" class="btn-pomodoro" onclick="pausePomodoro()" disabled>⏸️ Pausar</button>
-            <button id="pomodoro-reset-btn" class="btn-pomodoro" onclick="resetPomodoro()" disabled>🔄 Reset</button>
+            <button id="pomodoro-start-btn" class="btn-pomodoro" onclick="startPomodoro()" disabled><svg class="ui-icon"><use href="#icon-play"></use></svg><span>Iniciar</span></button>
+            <button id="pomodoro-pause-btn" class="btn-pomodoro" onclick="pausePomodoro()" disabled><svg class="ui-icon"><use href="#icon-pause"></use></svg><span>Pausar</span></button>
+            <button id="pomodoro-reset-btn" class="btn-pomodoro" onclick="resetPomodoro()" disabled><svg class="ui-icon"><use href="#icon-reset"></use></svg><span>Reset</span></button>
           </div>
           <div class="pomodoro-config">
             <div class="config-row">
-              <label>⏱️ Trabajo (min):</label>
+              <label>Trabajo (min):</label>
               <input type="number" id="pomodoro-work" value="25" min="1" max="60" />
             </div>
             <div class="config-row">
-              <label>☕ Descanso (min):</label>
+              <label>Descanso (min):</label>
               <input type="number" id="pomodoro-break" value="5" min="1" max="30" />
             </div>
           </div>
@@ -193,19 +319,19 @@
     <!-- Tab Content: RTC -->
     <div id="tab-datetime" class="tab-content">
       <div class="section">
-        <div class="section-label">📅 Fecha y Hora</div>
+        <div class="section-label">Fecha y hora</div>
         <div class="datetime-widget">
           <div class="datetime-display">
             <div class="datetime-time" id="current-time">--:--:--</div>
             <div class="datetime-date" id="current-date">-- / -- / ----</div>
           </div>
-          <button id="send-datetime-btn" class="btn-datetime" onclick="sendDateTimeToRobot()" disabled>📤 Sincronizar RTC</button>
+          <button id="send-datetime-btn" class="btn-datetime" onclick="sendDateTimeToRobot()" disabled><svg class="ui-icon"><use href="#icon-send"></use></svg><span>Sincronizar RTC</span></button>
         </div>
       </div>
     </div>
 
     <!-- Log -->
-    <div id="log-section" class="section log-section">
+    <div id="log-section" class="section log-section hidden" aria-hidden="true">
       <div class="section-label log-header">
         <span>Log</span>
         <div class="log-actions">
@@ -265,13 +391,16 @@
     const playingMessage = document.getElementById('playing-message');
     const playingTimer = document.getElementById('playing-timer');
     const motionAutoBtn = document.getElementById('motion-auto-btn');
+    const actionCarouselTrack = document.getElementById('action-carousel-track');
+    const actionPrevBtn = document.getElementById('action-prev');
+    const actionNextBtn = document.getElementById('action-next');
 
     let robot = null;
     let lastEmotionBtn = null;
     let lastActionBtn  = null;
     let deferredInstallPrompt = null;
     let installMode = 'none';
-    const SW_VERSION = 'v9';
+    const SW_VERSION = 'v12';
     let commandCooldown = false;
     const COOLDOWN_MS = 300; // 300ms cooldown between commands
     let currentDeviceName = 'Kubi';  // Store device name
@@ -289,8 +418,35 @@
       'kubi-gladiator': 'Kubi alcanzara su uptime en este release!'
     };
 
+    function setButtonLabel(button, label) {
+      const labelEl = button?.querySelector('span:not(.hamburger-lines)');
+      if (labelEl) {
+        labelEl.textContent = label;
+      } else if (button) {
+        button.textContent = label;
+      }
+    }
+
+    function scrollActionCarousel(direction) {
+      if (!actionCarouselTrack) return;
+      const activeCard = actionCarouselTrack.querySelector('.tab-active');
+      const cardWidth = activeCard ? activeCard.offsetWidth : 132;
+      actionCarouselTrack.scrollBy({
+        left: direction * (cardWidth + 16),
+        behavior: 'smooth'
+      });
+    }
+
+    function updateCarouselButtons() {
+      if (!actionCarouselTrack || !actionPrevBtn || !actionNextBtn) return;
+      const maxScroll = actionCarouselTrack.scrollWidth - actionCarouselTrack.clientWidth;
+      actionPrevBtn.disabled = actionCarouselTrack.scrollLeft <= 4;
+      actionNextBtn.disabled = actionCarouselTrack.scrollLeft >= maxScroll - 4;
+    }
+
     // ---- LOG ----
     function addLog(msg, type = 'info') {
+      if (!logBox) return;
       const el = document.createElement('div');
       el.className = `log-line ${type}`;
       const t = new Date().toLocaleTimeString('es-ES', { hour12: false });
@@ -302,17 +458,19 @@
     }
 
     function clearLog() {
+      if (!logBox) return;
       logBox.innerHTML = '<div class="log-line info">Log limpiado</div>';
     }
 
     function toggleLogPanel() {
+      if (!logContent || !toggleLogBtn || !clearLogBtn) return;
       const isHidden = logContent.classList.toggle('hidden');
       toggleLogBtn.textContent = isHidden ? 'Mostrar' : 'Ocultar';
       clearLogBtn.classList.toggle('hidden', isHidden);
     }
 
     // ---- TAB NAVIGATION ----
-    function switchTab(tabName) {
+    function switchTab(tabName, activeButton) {
       // Hide all tab contents
       document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('tab-content-active');
@@ -330,7 +488,11 @@
       }
       
       // Activate clicked tab button
-      event.target.classList.add('tab-active');
+      if (activeButton) {
+        activeButton.classList.add('tab-active');
+        activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        window.setTimeout(updateCarouselButtons, 220);
+      }
       
       addLog(`Pestaña cambiada: ${tabName}`, 'info');
     }
@@ -359,6 +521,7 @@
       } else {
         statusDot.className = 'dot dot-off';
         connLabel.textContent = 'Offline';
+        setButtonLabel(connectBtn, 'Conectar');
         connectBtn.classList.remove('hidden');
         disconnectBtn.classList.add('hidden');
         deviceNameRow.classList.add('hidden');
@@ -395,47 +558,71 @@
     });
 
     // ---- BLE ----
+    function initRobot() {
+      if (robot) return;
+      robot = new PulsarC6BLE({
+        onLog: msg => addLog(msg, 'info'),
+        onConnected: () => {
+          const s = robot.getStatus();
+          currentDeviceName = s.deviceName || 'Kubi';
+          setConnected(true, s.deviceName || 'Pulsar C6');
+        },
+        onDisconnected: () => { setConnected(false); addLog('Dispositivo desconectado', 'warn'); },
+        onError: msg => addLog(msg, 'err')
+      });
+      setConnected(false);
+      addLog('Pagina lista. Toca "Conectar" para empezar.', 'info');
+    }
+
     async function connectBLE() {
+      initRobot();
       connectBtn.disabled = true;
-      connectBtn.textContent = 'Conectando...';
+      setButtonLabel(connectBtn, 'Conectando...');
       addLog('Buscando dispositivo BLE...', 'info');
-      const ok = await robot.connect();
-      connectBtn.disabled = false;
-      connectBtn.textContent = 'Conectar';
-      if (ok) {
-        const s = robot.getStatus();
-        currentDeviceName = s.deviceName || 'Kubi';  // Save device name
-        setConnected(true, s.deviceName || 'Pulsar C6');
-        addLog('Conexion exitosa', 'ok');
-        // Subscribe to notifications
-        await robot.subscribeToNotifications((data) => {
-          const msg = new TextDecoder().decode(data);
-          if (msg.startsWith('msg:')) {
-            addMessageToHistory('received', msg.substring(4));
-            addLog('Mensaje recibido: ' + msg.substring(4), 'info');
-          } else if (msg.startsWith('pomodoro:')) {
-            updatePomodoroFromRobot(msg.substring(9));
-          } else if (msg === 'motion:auto:on') {
-            setMotionAutoUi(true);
-            addLog('Auto IMU activado', 'ok');
-          } else if (msg === 'motion:auto:off') {
-            setMotionAutoUi(false);
-            addLog('Auto IMU desactivado', 'info');
-          } else if (msg.startsWith('motion:emotion:')) {
-            const emotion = msg.substring(15);
-            currentEmotion.textContent = emotion;
-          } else if (msg === 'rtc:sync_needed') {
-            addLog('RTC sin sincronizar, enviando hora por Bluetooth', 'warn');
-            sendDateTimeToRobot();
-          } else if (msg === 'rtc:ok') {
-            addLog('RTC actualizado', 'ok');
-          }
-        });
-        await robot.sendCommand('rtc:status');
-        await robot.sendCommand('pomodoro:status');
-        await robot.sendCommand('motion:auto:status');
-      } else {
-        addLog('Error al conectar', 'err');
+      try {
+        const ok = await robot.connect();
+        if (ok) {
+          const s = robot.getStatus();
+          currentDeviceName = s.deviceName || 'Kubi';  // Save device name
+          setConnected(true, s.deviceName || 'Pulsar C6');
+          addLog('Conexion exitosa', 'ok');
+          // Subscribe to notifications
+          await robot.subscribeToNotifications((data) => {
+            const msg = new TextDecoder().decode(data);
+            if (msg.startsWith('msg:')) {
+              addMessageToHistory('received', msg.substring(4));
+              addLog('Mensaje recibido: ' + msg.substring(4), 'info');
+            } else if (msg.startsWith('pomodoro:')) {
+              updatePomodoroFromRobot(msg.substring(9));
+            } else if (msg === 'motion:auto:on') {
+              setMotionAutoUi(true);
+              addLog('Auto IMU activado', 'ok');
+            } else if (msg === 'motion:auto:off') {
+              setMotionAutoUi(false);
+              addLog('Auto IMU desactivado', 'info');
+            } else if (msg.startsWith('motion:emotion:')) {
+              const emotion = msg.substring(15);
+              currentEmotion.textContent = emotion;
+            } else if (msg === 'rtc:sync_needed') {
+              addLog('RTC sin sincronizar, enviando hora por Bluetooth', 'warn');
+              sendDateTimeToRobot();
+            } else if (msg === 'rtc:ok') {
+              addLog('RTC actualizado', 'ok');
+            }
+          });
+          await robot.sendCommand('rtc:status');
+          await robot.sendCommand('pomodoro:status');
+          await robot.sendCommand('motion:auto:status');
+        } else {
+          addLog('Error al conectar', 'err');
+        }
+      } catch (error) {
+        addLog('Error al conectar: ' + error.message, 'err');
+      } finally {
+        if (!robot.isConnected) {
+          connectBtn.disabled = false;
+          setButtonLabel(connectBtn, 'Conectar');
+        }
       }
     }
 
@@ -490,7 +677,7 @@
     function setMotionAutoUi(enabled) {
       motionAutoEnabled = enabled;
       motionAutoBtn.classList.toggle('active-cmd', enabled);
-      motionAutoBtn.querySelector('.icon').textContent = enabled ? '✅' : '🧭';
+      document.getElementById('motion-auto-icon-use')?.setAttribute('href', enabled ? '#icon-check' : '#icon-compass');
       currentAction.textContent = enabled ? 'auto imu' : currentAction.textContent;
     }
 
@@ -562,14 +749,6 @@
       textEl.className = 'message-text';
       textEl.textContent = text;
       
-      // Add icon for sent messages
-      if (type === 'sent') {
-        const iconEl = document.createElement('div');
-        iconEl.className = 'message-icon';
-        iconEl.textContent = '📤';
-        msgEl.appendChild(iconEl);
-      }
-      
       msgEl.appendChild(textEl);
       msgEl.appendChild(timeEl);
       messageHistory.appendChild(msgEl);
@@ -606,7 +785,7 @@
       // Disable button during send
       sendMessageBtn.disabled = true;
       messageInput.disabled = true;
-      sendMessageBtn.textContent = 'Enviando...';
+      setButtonLabel(sendMessageBtn, 'Enviando...');
       
       const ok = await robot.sendCommand('msg:' + text);
       
@@ -616,7 +795,7 @@
           sendMessageBtn.disabled = false;
           messageInput.disabled = false;
         }
-        sendMessageBtn.textContent = 'Enviar';
+        setButtonLabel(sendMessageBtn, 'Enviar');
       }, COOLDOWN_MS);
       
       if (ok) {
@@ -668,7 +847,7 @@
       }, COOLDOWN_MS);
       
       if (ok) {
-        const displayText = messageKey === 'kubi-gladiator' ? '🗡️ Mensaje Gladiador' : text;
+        const displayText = messageKey === 'kubi-gladiator' ? 'Mensaje Gladiador' : text;
         addMessageToHistory('sent', displayText);
         addLog('Mensaje enviado', 'ok');
         
@@ -698,7 +877,7 @@
       const dataEl = document.getElementById('weather-data');
       
       fetchBtn.disabled = true;
-      fetchBtn.textContent = '🔄 Obteniendo...';
+      setButtonLabel(fetchBtn, 'Obteniendo...');
       loadingEl.textContent = 'Obteniendo ubicación...';
       
       try {
@@ -758,24 +937,39 @@
         };
         const weatherDesc = weatherDescriptions[weatherData.weatherCode] || 'desconocido';
         
-        // Weather code to icon mapping
+        // Weather code to simple display label mapping
         const weatherIcons = {
-          0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
-          45: '🌫️', 48: '🌫️',
-          51: '🌦️', 53: '🌦️', 55: '🌧️',
-          61: '🌧️', 63: '🌧️', 65: '⛈️',
-          71: '🌨️', 73: '❄️', 75: '❄️',
-          80: '🌦️', 81: '🌧️', 82: '⛈️',
-          95: '⛈️', 96: '⛈️', 99: '⛈️'
+          0: { label: 'Sol', symbol: '#icon-sun-cloud' },
+          1: { label: 'Claro', symbol: '#icon-sun-cloud' },
+          2: { label: 'Nubes', symbol: '#icon-sun-cloud' },
+          3: { label: 'Nublado', symbol: '#icon-cloud' },
+          45: { label: 'Niebla', symbol: '#icon-cloud' },
+          48: { label: 'Niebla', symbol: '#icon-cloud' },
+          51: { label: 'Llovizna', symbol: '#icon-droplet' },
+          53: { label: 'Llovizna', symbol: '#icon-droplet' },
+          55: { label: 'Lluvia', symbol: '#icon-droplet' },
+          61: { label: 'Lluvia', symbol: '#icon-droplet' },
+          63: { label: 'Lluvia', symbol: '#icon-droplet' },
+          65: { label: 'Lluvia', symbol: '#icon-droplet' },
+          71: { label: 'Nieve', symbol: '#icon-spark' },
+          73: { label: 'Nieve', symbol: '#icon-spark' },
+          75: { label: 'Nieve', symbol: '#icon-spark' },
+          80: { label: 'Chubascos', symbol: '#icon-droplet' },
+          81: { label: 'Chubascos', symbol: '#icon-droplet' },
+          82: { label: 'Tormenta', symbol: '#icon-spark' },
+          95: { label: 'Tormenta', symbol: '#icon-spark' },
+          96: { label: 'Tormenta', symbol: '#icon-spark' },
+          99: { label: 'Tormenta', symbol: '#icon-spark' }
         };
-        const weatherIcon = weatherIcons[weatherData.weatherCode] || '🌤️';
+        const weatherIcon = weatherIcons[weatherData.weatherCode] || { label: 'Clima', symbol: '#icon-sun-cloud' };
         
         // Update UI
         document.getElementById('weather-temp').textContent = weatherData.temp + '°C';
         document.getElementById('weather-desc').textContent = weatherDesc;
         document.getElementById('weather-humidity').textContent = weatherData.humidity + '%';
         document.getElementById('weather-location').textContent = weatherData.location;
-        document.getElementById('weather-icon').textContent = weatherIcon;
+        document.getElementById('weather-icon-label').textContent = weatherIcon.label;
+        document.getElementById('weather-symbol').setAttribute('href', weatherIcon.symbol);
         
         loadingEl.classList.add('hidden');
         dataEl.classList.remove('hidden');
@@ -787,7 +981,7 @@
         addLog('Error al obtener clima: ' + error.message, 'err');
       } finally {
         fetchBtn.disabled = false;
-        fetchBtn.textContent = '🔄 Obtener Clima';
+        setButtonLabel(fetchBtn, 'Obtener clima');
       }
     }
     
@@ -948,6 +1142,9 @@
     // ---- EVENTS ----
     connectBtn.addEventListener('click', connectBLE);
     disconnectBtn.addEventListener('click', disconnectBLE);
+    actionPrevBtn?.addEventListener('click', () => scrollActionCarousel(-1));
+    actionNextBtn?.addEventListener('click', () => scrollActionCarousel(1));
+    actionCarouselTrack?.addEventListener('scroll', updateCarouselButtons);
     hamburgerBtn.addEventListener('click', toggleMenu);
     menuDisconnectBtn.addEventListener('click', () => {
       disconnectBLE();
@@ -994,20 +1191,9 @@
       addLog('App instalada correctamente', 'ok');
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      robot = new PulsarC6BLE({
-        onLog: msg => addLog(msg, 'info'),
-        onConnected: () => { 
-          const s = robot.getStatus();
-          currentDeviceName = s.deviceName || 'Kubi';
-          setConnected(true, s.deviceName || 'Pulsar C6'); 
-        },
-        onDisconnected: () => { setConnected(false); addLog('Dispositivo desconectado', 'warn'); },
-        onError: msg => addLog(msg, 'err')
-      });
-      setConnected(false);
-      addLog('Pagina lista. Toca "Conectar" para empezar.', 'info');
-
+    function initPage() {
+      initRobot();
+      updateCarouselButtons();
       // Registrar Service Worker (PWA)
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(`./sw.js?${SW_VERSION}`)
@@ -1030,7 +1216,13 @@
       if (!window.isSecureContext) {
         addLog('Instalacion PWA requiere HTTPS (o localhost)', 'warn');
       }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
   </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 // Pulsar C6 - Service Worker
-const CACHE_NAME = 'pulsar-c6-v9';
+const CACHE_NAME = 'pulsar-c6-v12';
 
 // Solo assets estaticos (NO index.html ni styles.css para que siempre lleguen frescos de red)
 const ASSETS = [

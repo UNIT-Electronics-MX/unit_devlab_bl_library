@@ -7,8 +7,8 @@
   "orientation": "portrait",
   "scope": "./",
   "id": "./index.html",
-  "background_color": "#fce7ff",
-  "theme_color": "#7c3aed",
+  "background_color": "#eef8f6",
+  "theme_color": "#eef8f6",
   "lang": "es",
   "icons": [
     {
