@@ -1,0 +1,28 @@
+import { useState } from "react";
+
+import type { AppModes } from "@models/navigation";
+
+import { Header } from "@components/header/Header";
+
+import { Menu } from "@navigation/Menu";
+
+import { EmotionsView } from "@features/emotions/EmotionsView";
+
+export const App = () => {
+
+  const [mode, setMode] = useState<AppModes>("emociones");
+
+  return (
+    <section className="flex min-h-screen flex-col bg-neutral-50">
+      <Header />
+      <main className="mx-auto w-full max-w-5xl p-5">
+        <Menu activeView={mode} onViewChange={setMode} />
+
+        <div className="pt-5" hidden={mode !== "emociones"} >
+          <EmotionsView />
+        </div>
+      </main>
+    </section>
+  )
+
+}

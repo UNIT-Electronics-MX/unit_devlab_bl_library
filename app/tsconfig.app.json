@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "types": ["vite/client", "web-bluetooth"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Rutas
+    "paths": {
+      "@shadcn/*":     ["./src/components/ui/*"],
+      "@navigation/*": ["./src/navigation/*"],
+      "@components/*": ["./src/components/*"],
+      "@features/*":   ["./src/features/*"],
+      "@services/*":   ["./src/services/*"],
+      "@styles/*":     ["./src/styles/*"],
+      "@models/*":      ["./src/types/*"],
+      "@hooks/*":      ["./src/hooks/*"],
+      "@lib/*":        ["./src/lib/*"],
+    }
+  },
+  "include": ["src"]
+}
