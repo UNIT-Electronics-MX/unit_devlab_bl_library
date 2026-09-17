@@ -75,7 +75,7 @@ export const EmotionsView = () => {
                                 aria-pressed={isActive}
                                 onClick={() => handleEmotion(command)}
                                 className={`h-28 flex-col gap-3 rounded-xl transition-all ${isActive
-                                    ? "border-orange-500 bg-orange-500 text-white hover:bg-orange-600 hover:text-white"
+                                    ? "border-orange-600 border-b-4 bg-orange-400 text-white hover:bg-orange-600 hover:text-white"
                                     : "hover:border-orange-300 hover:bg-white dark:hover:bg-orange-950/30"
                                     }`}
                             >
@@ -92,8 +92,8 @@ export const EmotionsView = () => {
                         aria-pressed={motionAutoEnabled}
                         onClick={handleMotionAuto}
                         className={`h-28 flex-col gap-3 rounded-xl transition-all ${motionAutoEnabled
-                            ? "bg-orange-500 text-white hover:bg-orange-600 hover:text-white"
-                            : "hover:bg-orange-50 dark:hover:bg-orange-950/30"
+                            ? "border-orange-600 border-b-4 bg-orange-400 text-white hover:bg-orange-600 hover:text-white"
+                            : "hover:border-orange-300 hover:bg-white dark:hover:bg-orange-950/30"
                             }`}
                     >
                         {pendingCommand === "motion-auto"

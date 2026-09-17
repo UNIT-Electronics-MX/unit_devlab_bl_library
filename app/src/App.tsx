@@ -7,6 +7,7 @@ import { Header } from "@components/header/Header";
 import { Menu } from "@navigation/Menu";
 
 import { EmotionsView } from "@features/emotions/EmotionsView";
+import { Messages } from "@features/messages/Messages";
 
 export const App = () => {
 
@@ -20,6 +21,9 @@ export const App = () => {
 
         <div className="pt-5" hidden={mode !== "emociones"} >
           <EmotionsView />
+        </div>
+        <div className="pt-5" hidden={mode !== "mensajes"} >
+          <Messages />
         </div>
       </main>
     </section>
