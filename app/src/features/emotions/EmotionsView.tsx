@@ -75,8 +75,8 @@ export const EmotionsView = () => {
                                 aria-pressed={isActive}
                                 onClick={() => handleEmotion(command)}
                                 className={`h-28 flex-col gap-3 rounded-xl transition-all ${isActive
-                                    ? "border-orange-600 border-b-4 bg-orange-400 text-white hover:bg-orange-600 hover:text-white"
-                                    : "hover:border-orange-300 hover:bg-white dark:hover:bg-orange-950/30"
+                                    ? "border-blue-600 border-b-4 bg-blue-400 text-white hover:bg-blue-600 hover:text-white"
+                                    : "hover:border-blue-300 hover:bg-white dark:hover:bg-blue-950/30"
                                     }`}
                             >
                                 {isLoading ? <LoaderCircle className="size-6 animate-spin" /> : <Icon className="size-6" />}
@@ -92,8 +92,8 @@ export const EmotionsView = () => {
                         aria-pressed={motionAutoEnabled}
                         onClick={handleMotionAuto}
                         className={`h-28 flex-col gap-3 rounded-xl transition-all ${motionAutoEnabled
-                            ? "border-orange-600 border-b-4 bg-orange-400 text-white hover:bg-orange-600 hover:text-white"
-                            : "hover:border-orange-300 hover:bg-white dark:hover:bg-orange-950/30"
+                            ? "border-blue-600 border-b-4 bg-blue-400 text-white hover:bg-blue-600 hover:text-white"
+                            : "hover:border-blue-300 hover:bg-white dark:hover:bg-blue-950/30"
                             }`}
                     >
                         {pendingCommand === "motion-auto"

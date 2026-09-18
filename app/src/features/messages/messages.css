@@ -1,0 +1,33 @@
+@reference "tailwindcss";
+
+@layer base {
+    .main-messages {
+        @apply flex items-start justify-between gap-4;
+    }
+
+    .scroll-area-messages {
+        @apply h-85 rounded-xl bg-gray-50 border p-5;
+    }
+
+    .text-empty-messages {
+        @apply text-lg font-medium text-center pt-30;
+    }
+
+    .footer-messages {
+        @apply flex justify-between text-xs;
+    }
+
+    /* MessageBubble */
+
+    .mensaje {
+        @apply max-w-[75%] rounded-2xl px-7 py-2.5;
+    }
+
+    .enviado {
+        @apply bg-blue-500 text-white;
+    }
+
+    .recibido {
+        @apply bg-black text-white;
+    }
+}
