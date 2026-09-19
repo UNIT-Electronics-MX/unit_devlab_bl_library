@@ -8,6 +8,7 @@ import { Menu } from "@navigation/Menu";
 
 import { EmotionsView } from "@features/emotions/EmotionsView";
 import { Messages } from "@features/messages/Messages";
+import { Weather } from "@features/weather/Weather";
 
 export const App = () => {
 
@@ -24,6 +25,9 @@ export const App = () => {
         </div>
         <div className="pt-5" hidden={mode !== "mensajes"} >
           <Messages />
+        </div>
+        <div className="pt-5" hidden={mode !== "clima"} >
+          <Weather />
         </div>
       </main>
     </section>

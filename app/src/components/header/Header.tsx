@@ -20,21 +20,13 @@ export const Header = () => {
     } = useBluetooth()
 
     return (
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+        <header className="sticky top-0 z-50 bg-background/95">
             <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4">
-                {/* Brand */}
-                <div className="flex min-w-0 items-center gap-3">
 
-                    <div className="min-w-0">
-                        <h1 className="truncate text-lg font-semibold leading-tight">
-                            Kubi
-                        </h1>
+                <h1 className="truncate text-4xl font-peralta leading-tight">
+                    Kubi
+                </h1>
 
-                        <p className="hidden text-xs text-muted-foreground sm:block">
-                            Robot BLE Control
-                        </p>
-                    </div>
-                </div>
 
                 {/* Connection */}
                 <div className="flex items-center gap-4">
