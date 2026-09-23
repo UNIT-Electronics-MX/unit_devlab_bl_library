@@ -13,7 +13,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
         <div className={`flex items-end gap-2 ${isSent ? "justify-end" : "justify-start"}`}>
 
             <div className={`mensaje ${isSent ? "enviado" : "recibido"}`}>
-                <p className="wrap-break-word text-sm">{message.text}</p>
+                <p className="text-sm tracking-wide font-mono">{message.text}</p>
             </div>
         </div>
     )

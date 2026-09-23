@@ -74,7 +74,7 @@ export const EmotionsView = () => {
                                 disabled={!connected || pendingCommand !== null}
                                 aria-pressed={isActive}
                                 onClick={() => handleEmotion(command)}
-                                className={`h-28 flex-col gap-3 rounded-xl transition-all ${isActive
+                                className={`h-28 flex-col gap-3 rounded-xl transition-all font-arcade ${isActive
                                     ? "border-blue-600 border-b-4 bg-blue-400 text-white hover:bg-blue-600 hover:text-white"
                                     : "hover:border-blue-300 hover:bg-white dark:hover:bg-blue-950/30"
                                     }`}
@@ -91,7 +91,7 @@ export const EmotionsView = () => {
                         disabled={!connected || pendingCommand !== null}
                         aria-pressed={motionAutoEnabled}
                         onClick={handleMotionAuto}
-                        className={`h-28 flex-col gap-3 rounded-xl transition-all ${motionAutoEnabled
+                        className={`h-28 flex-col gap-3 rounded-xl transition-all font-arcade ${motionAutoEnabled
                             ? "border-blue-600 border-b-4 bg-blue-400 text-white hover:bg-blue-600 hover:text-white"
                             : "hover:border-blue-300 hover:bg-white dark:hover:bg-blue-950/30"
                             }`}
@@ -106,8 +106,8 @@ export const EmotionsView = () => {
                 </div>
 
                 {!connected && (
-                    <p className="mt-4 text-center text-sm text-muted-foreground">
-                        Conecta a Kubi para habilitar los controles :)
+                    <p className="mt-4 text-center text-sm text-red-500">
+                        Conecta a Kubi para habilitar los controles :P
                     </p>
                 )}
             </CardContent>

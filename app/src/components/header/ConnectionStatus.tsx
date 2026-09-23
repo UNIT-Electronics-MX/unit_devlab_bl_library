@@ -33,7 +33,7 @@ export const ConnectionStatus = ({
       )}
 
       <div className="flex flex-col leading-tight">
-        <span className="text-sm font-medium">
+        <span className="text-sm font-medium font-arcade text-white">
           {statusLabel}
         </span>
 

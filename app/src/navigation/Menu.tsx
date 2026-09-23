@@ -32,7 +32,10 @@ export function Menu({ activeView, onViewChange }: Props) {
           <Button
             key={id}
             variant={activeView === id ? "default" : "outline"}
-            className="min-w-28 gap-2 cursor-pointer"
+            className={`min-w-28 gap-2 cursor-pointer ${activeView === id
+                ? "bg-blue-700 text-white hover:bg-blue-700"
+                : "hover:bg-blue-50 hover:text-blue-700"
+              }`}
             onClick={() => onViewChange(id)}
           >
             <Icon className="size-4" />

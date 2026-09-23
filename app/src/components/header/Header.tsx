@@ -1,8 +1,4 @@
-import {
-    Bluetooth,
-    LoaderCircle,
-    Unplug,
-} from "lucide-react"
+import { Bluetooth, LoaderCircle, Unplug } from "lucide-react"
 
 import { Button } from "@shadcn/button"
 
@@ -20,13 +16,12 @@ export const Header = () => {
     } = useBluetooth()
 
     return (
-        <header className="sticky top-0 z-50 bg-background/95">
+        <header className="sticky top-0 z-50 bg-black">
             <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4">
 
-                <h1 className="truncate text-4xl font-peralta leading-tight">
+                <h1 className="truncate text-6xl leading-tight font-arcade text-white">
                     Kubi
                 </h1>
-
 
                 {/* Connection */}
                 <div className="flex items-center gap-4">

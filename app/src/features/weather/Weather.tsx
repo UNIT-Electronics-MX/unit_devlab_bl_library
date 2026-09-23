@@ -28,7 +28,7 @@ import {
 const temperatureConfig = {
   temperature: {
     label: "Temperatura",
-    color: "#60a5fa",
+    color: "#27B4F5",
   },
 } satisfies ChartConfig
 
