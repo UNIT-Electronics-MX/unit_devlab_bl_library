@@ -3,6 +3,7 @@
 DevLabEyes::DevLabEyes(Adafruit_SSD1306& display)
   : _display(&display),
     _emotion(HAPPY),
+    _eyesOnly(false),
     _animFrame(0),
     _zOffset(0),
     _vomitOffset(0) {
@@ -25,6 +26,14 @@ DevLabEyes::Emotion DevLabEyes::getEmotion() const {
 
 const char* DevLabEyes::getEmotionName() const {
   return emotionName(_emotion);
+}
+
+void DevLabEyes::setEyesOnly(bool enabled) {
+  _eyesOnly = enabled;
+}
+
+bool DevLabEyes::eyesOnly() const {
+  return _eyesOnly;
 }
 
 void DevLabEyes::draw() {
@@ -141,7 +150,7 @@ void DevLabEyes::drawHappy() {
   fillCircle(88, 32, 15, SSD1306_WHITE);
   fillCircle(40, 32, 5, SSD1306_BLACK);
   fillCircle(88, 32, 5, SSD1306_BLACK);
-  drawArc(64, 48, 10, 0, 180, SSD1306_WHITE);
+  if (!_eyesOnly) drawArc(64, 48, 10, 0, 180, SSD1306_WHITE);
 
   _display->display();
 }
@@ -159,8 +168,10 @@ void DevLabEyes::drawAngry() {
   _display->drawLine(28, 20, 52, 24, SSD1306_WHITE);
   _display->drawLine(76, 24, 100, 20, SSD1306_WHITE);
 
-  int mouth = 20 + ((_animFrame / 10) % 2);
-  _display->drawFastHLine(64 - (mouth / 2), 50, mouth, SSD1306_WHITE);
+  if (!_eyesOnly) {
+    int mouth = 20 + ((_animFrame / 10) % 2);
+    _display->drawFastHLine(64 - (mouth / 2), 50, mouth, SSD1306_WHITE);
+  }
 
   _display->display();
 }
@@ -170,14 +181,15 @@ void DevLabEyes::drawSleepy() {
 
   _display->drawFastHLine(28, 32, 24, SSD1306_WHITE);
   _display->drawFastHLine(76, 32, 24, SSD1306_WHITE);
-  _display->drawFastHLine(54, 50, 20, SSD1306_WHITE);
-
-  _display->setTextSize(1);
-  _display->setTextColor(SSD1306_WHITE);
-  _display->setCursor(100, 20 - _zOffset);
-  _display->print("Z");
-  _display->setCursor(108, 10 - (_zOffset / 2));
-  _display->print("z");
+  if (!_eyesOnly) {
+    _display->drawFastHLine(54, 50, 20, SSD1306_WHITE);
+    _display->setTextSize(1);
+    _display->setTextColor(SSD1306_WHITE);
+    _display->setCursor(100, 20 - _zOffset);
+    _display->print("Z");
+    _display->setCursor(108, 10 - (_zOffset / 2));
+    _display->print("z");
+  }
 
   _zOffset++;
   if (_zOffset > 30) _zOffset = 0;
@@ -196,8 +208,11 @@ void DevLabEyes::drawSurprised() {
   fillCircle(40, 32 - bounce, pupil, SSD1306_BLACK);
   fillCircle(88, 32 - bounce, pupil, SSD1306_BLACK);
 
-  int mouthSize = 8 + (_animFrame % 4);
-  _display->drawRoundRect(64 - (mouthSize / 2), 48, mouthSize, mouthSize + 4, 3, SSD1306_WHITE);
+  if (!_eyesOnly) {
+    int mouthSize = 8 + (_animFrame % 4);
+    _display->drawRoundRect(64 - (mouthSize / 2), 48, mouthSize,
+                            mouthSize + 4, 3, SSD1306_WHITE);
+  }
 
   _display->display();
 }
@@ -205,7 +220,7 @@ void DevLabEyes::drawSurprised() {
 void DevLabEyes::drawWink() {
   _display->clearDisplay();
 
-  bool closed = (_animFrame % 20) < 10;
+  bool closed = _eyesOnly || (_animFrame % 20) < 10;
 
   if (closed) {
     _display->drawFastHLine(24, 32, 30, SSD1306_WHITE);
@@ -218,7 +233,7 @@ void DevLabEyes::drawWink() {
   fillCircle(88, 32, 15, SSD1306_WHITE);
   fillCircle(88, 32, 5, SSD1306_BLACK);
 
-  drawArc(64, 48, 12, 10, 170, SSD1306_WHITE);
+  if (!_eyesOnly) drawArc(64, 48, 12, 10, 170, SSD1306_WHITE);
 
   _display->display();
 }
@@ -234,18 +249,20 @@ void DevLabEyes::drawVomit() {
   _display->drawLine(82, 26, 94, 38, SSD1306_BLACK);
   _display->drawLine(94, 26, 82, 38, SSD1306_BLACK);
 
-  _display->fillRect(56, 46, 16, 8, SSD1306_WHITE);
-  _display->fillRect(59, 48, 10, 4, SSD1306_BLACK);
+  if (!_eyesOnly) {
+    _display->fillRect(56, 46, 16, 8, SSD1306_WHITE);
+    _display->fillRect(59, 48, 10, 4, SSD1306_BLACK);
 
-  for (int y = 0; y < 18; y++) {
-    int width = 6 - (y / 4);
-    for (int x = -width; x < width; x++) {
-      _display->drawPixel(64 + x + ((_vomitOffset % 2) * 2), 54 + y, SSD1306_WHITE);
+    for (int y = 0; y < 18; y++) {
+      int width = 6 - (y / 4);
+      for (int x = -width; x < width; x++) {
+        _display->drawPixel(64 + x + ((_vomitOffset % 2) * 2), 54 + y,
+                            SSD1306_WHITE);
+      }
     }
+    _display->fillRect(58, 62 - _vomitOffset, 2, 2, SSD1306_WHITE);
+    _display->fillRect(70, 66 - (_vomitOffset * 2), 2, 2, SSD1306_WHITE);
   }
-
-  _display->fillRect(58, 62 - _vomitOffset, 2, 2, SSD1306_WHITE);
-  _display->fillRect(70, 66 - (_vomitOffset * 2), 2, 2, SSD1306_WHITE);
 
   _vomitOffset++;
   if (_vomitOffset > 8) _vomitOffset = 0;

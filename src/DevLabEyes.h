@@ -21,6 +21,8 @@ public:
   bool setEmotion(const String& emotion);
   Emotion getEmotion() const;
   const char* getEmotionName() const;
+  void setEyesOnly(bool enabled);
+  bool eyesOnly() const;
 
   void draw();
   void draw(Emotion emotion);
@@ -32,6 +34,7 @@ public:
 private:
   Adafruit_SSD1306* _display;
   Emotion _emotion;
+  bool _eyesOnly;
   uint16_t _animFrame;
   uint8_t _zOffset;
   uint8_t _vomitOffset;
